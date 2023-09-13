@@ -20,7 +20,7 @@ namespace AdminMenu
     public class AdminMenuPlugin : BaseUnityPlugin
     {
         internal const string ModName = "AdminMenu";
-        internal const string ModVersion = "1.0.3";
+        internal const string ModVersion = "1.1.0";
         internal const string Author = "Azumatt";
         private const string ModGUID = Author + "." + ModName;
         private readonly Harmony _harmony = new(ModGUID);
