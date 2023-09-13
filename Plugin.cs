@@ -20,7 +20,7 @@ namespace AdminMenu
     public class AdminMenuPlugin : BaseUnityPlugin
     {
         internal const string ModName = "AdminMenu";
-        internal const string ModVersion = "1.0.2";
+        internal const string ModVersion = "1.0.3";
         internal const string Author = "Azumatt";
         private const string ModGUID = Author + "." + ModName;
         private readonly Harmony _harmony = new(ModGUID);
@@ -191,7 +191,7 @@ namespace AdminMenu
                 if (transform && transform.gameObject.activeSelf && transform.TryGetComponent<PlayerDummy>(out PlayerDummy component) && (bool)(Object)component.Object && !(component == Global.code.Player.playerDummy))
                 {
                     if (AdminUI.allowPlayers) continue;
-                    Mainframe.code.M_GlobalData.RemovePlayerFromGame_RPC(component.PlayerRef);
+                    Mainframe.code.M_GlobalData.RPC_DisconnectPlayer(component.PlayerRef);
                     Utilities.gInst.uiCombat.AddHint($"Player {characterName} kicked from the game.", Color.yellow);
                     AdminMenuPlugin.AdminMenuLogger.LogInfo($"Player {characterName} ({component.CharacterGuid}) kicked from the game.");
                 }
