@@ -95,7 +95,7 @@ namespace AdminMenu.Util
 
         internal static void RectFilled(float x, float y, float width, float height, Color color)
         {
-            if (!(bool)(UnityEngine.Object)drawingTex)
+            if (!drawingTex)
                 drawingTex = new Texture2D(1, 1);
             if (color != lastTexColour)
             {
@@ -269,15 +269,13 @@ namespace AdminMenu.Util
             FPSPlayer.code.SwimmerMove = false;
             PlayerWeapons.code.StartWithQuickSlot = false;
             Global.code.uiCombat.HideHint();
-            if (!(bool)(UnityEngine.Object)item)
+            if (!item)
             {
-                if (!((bool)(UnityEngine.Object)gInst.player.weaponInHand & isQuickSlot))
-                    return;
-                PlayerWeapons.code.HolsterCurrentWeapon();
+                if (gInst.player.weaponInHand & isQuickSlot) PlayerWeapons.code.HolsterCurrentWeapon();
             }
             else
             {
-                if ((bool)(UnityEngine.Object)item.GetComponent<Food>())
+                if (item.GetComponent<Food>())
                 {
                     Food component = item.GetComponent<Food>();
                     if (component.bleedAmount > 0.0 && gInst.player.Bleeding <= 0.0)
@@ -301,11 +299,9 @@ namespace AdminMenu.Util
 
                     gInst.player.UpdateBuffHint();
                     --item.Amount;
-                    if (item.Amount <= 0)
-                        UnityEngine.Object.DestroyImmediate(item.gameObject);
-                    if ((bool)(UnityEngine.Object)component.itemReceivedAfterEat && UnityEngine.Random.Range(0, 100) < component.itemReceiveChance)
+                    if (component.itemReceivedAfterEat && UnityEngine.Random.Range(0, 100) < component.itemReceiveChance)
                         gInst.player.playerStorage.AddItem(Utility.Instantiate(component.itemReceivedAfterEat));
-                    if ((bool)(UnityEngine.Object)item.sndUse)
+                    if (item.sndUse)
                         RM.code.PlayOneShot(item.sndUse, UnityEngine.Random.Range(0.9f, 1.1f));
                     else if (component.foodAmount > 0)
                         RM.code.PlayOneShot(gInst.player.sndEat, UnityEngine.Random.Range(0.9f, 1.1f));
@@ -315,15 +311,15 @@ namespace AdminMenu.Util
                         RM.code.PlayOneShot(gInst.player.sndUseBandage, UnityEngine.Random.Range(0.9f, 1.1f));
                     gInst.player.StartCoroutine(gInst.player.RefreshInventoryUI());
                 }
-                else if ((bool)(UnityEngine.Object)item.GetComponent<WeaponRaycast>())
+                else if (item.GetComponent<WeaponRaycast>())
                 {
                     gInst.player.QuitConnectWire();
-                    if ((bool)(UnityEngine.Object)gInst.player.MyBuildController.m_BuildingHelpers.m_CurrentPreview)
+                    if (gInst.player.MyBuildController.m_BuildingHelpers.m_CurrentPreview)
                         gInst.player.MyBuildController.SetSelectedPiece(null);
                     bool flag = !(FPSRigidBodyWalker.code.isUnderWater && item.ItemID == RM.code.Torch.ItemID);
                     if (flag)
                     {
-                        if ((bool)(UnityEngine.Object)gInst.player.weaponInHand && gInst.player.weaponInHand._item == item && (bool)(UnityEngine.Object)PlayerWeapons.code.CurrentWeaponBehaviorComponent && PlayerWeapons.code.CurrentWeaponBehaviorComponent.WeaponItem.ItemID == item.ItemID && PlayerWeapons.code.CurrentWeaponBehaviorComponent.InitDone)
+                        if (gInst.player.weaponInHand && gInst.player.weaponInHand._item == item && PlayerWeapons.code.CurrentWeaponBehaviorComponent && PlayerWeapons.code.CurrentWeaponBehaviorComponent.WeaponItem.ItemID == item.ItemID && PlayerWeapons.code.CurrentWeaponBehaviorComponent.InitDone)
                         {
                             PlayerWeapons.code.HolsterCurrentWeapon();
                         }
@@ -352,7 +348,7 @@ namespace AdminMenu.Util
                             gInst.player.Invoke("ChangeInventoryState", 0.01f);
                     }
                     else
-                        gInst.player.LogError(string.Format("物品ID {0}不存在", item.ItemID));
+                        gInst.player.LogError($"ItemID {item.ItemID} does not exist");
                 }
                 else
                 {
@@ -360,7 +356,7 @@ namespace AdminMenu.Util
                     if (item.TryGetComponent<BuildingItem>(out component1))
                     {
                         BuildingPiece buildPiece = component1.GetBuildPiece();
-                        if ((bool)(UnityEngine.Object)buildPiece)
+                        if (buildPiece)
                         {
                             gInst.player.CanSnap = false;
                             gInst.player.MyBuildController.SetSelectedPiece(buildPiece);
@@ -376,7 +372,7 @@ namespace AdminMenu.Util
                         Blueprint component2;
                         if (item.TryGetComponent<Blueprint>(out component2) && GlobalDataHelper.IsGlobalDataValid() && Mainframe.code.M_GlobalData.AddLearnedBlueprint(item.ItemID))
                         {
-                            if ((bool)(UnityEngine.Object)Global.code)
+                            if (Global.code)
                                 Global.code.uiCombat.OpenBlueprintPenal(component2, Global.code.uiInventory.gameObject.activeSelf);
                             
                             gInst.player.StartCoroutine(gInst.player.RefreshInventoryUI());
@@ -384,7 +380,7 @@ namespace AdminMenu.Util
                     }
                 }
 
-                if ((bool)(UnityEngine.Object)gInst.player.weaponInHand)
+                if (gInst.player.weaponInHand)
                     return;
                 Global.code.uiCombat.ammoText.text = "∞";
             }

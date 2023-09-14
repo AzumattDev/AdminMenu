@@ -111,7 +111,7 @@ namespace AdminMenu
 
         public void Awake()
         {
-            GreenTextColor = ColorUtility.TryParseHtmlString("#25C835", out var color) ? color : Color.green;
+            GreenTextColor = ColorUtility.TryParseHtmlString("#25C835", out Color color) ? color : Color.green;
             RedTextColor = unlimitedHealthDescription.color;
             CreateEventListeners();
             Refresh(RM.code.allItems.items);
@@ -187,13 +187,13 @@ namespace AdminMenu
                     LeftButtonList.gameObject.SetActive(false);
                 ScrollViewLeft.content = LeftSpawnerList;
             }
-
-            if (!SpawnerView.gameObject.activeSelf)
-            {
-                SpawnerView.gameObject.SetActive(true);
-                if(DefaultRightView.gameObject.activeSelf)
-                    DefaultRightView.gameObject.SetActive(false);
-            }
+            // TODO: Finish the search and object pooling to re-enable this
+           //if (!SpawnerView.gameObject.activeSelf)
+           //{
+           //    SpawnerView.gameObject.SetActive(true);
+           //    if(DefaultRightView.gameObject.activeSelf)
+           //        DefaultRightView.gameObject.SetActive(false);
+           //}
         }
 
         private string DetermineButtonCategory(Button button)
@@ -214,8 +214,6 @@ namespace AdminMenu
 
         public void Refresh(List<Transform> items)
         {
-           //foreach (SpawnerPlaceholder component in LeftSpawnerList)
-           //    Destroy(component.gameObject);
             foreach (Transform transform1 in items)
             {
                 if (transform1)
@@ -231,7 +229,6 @@ namespace AdminMenu
                         placeholderComp.Icon.texture = component.icon;
                     placeholderComp.DisplayName.text = $"{component.DisplayName} ({component.ItemID})";
                     placeholderComp.InternalName.text = component.GetDisplayDescription();
-                    //transform2.GetChild(3).GetComponent<Text>().text = component.GetPrice().ToString(CultureInfo.InvariantCulture);
                     placeholderComp.Cost.text = component.DisplayName;
                     if (component.GetComponent<Equipment>())
                         placeholderComp.Armor.text = component.GetComponent<Equipment>().armor.ToString();

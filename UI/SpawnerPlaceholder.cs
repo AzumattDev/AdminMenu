@@ -58,7 +58,6 @@ public class SpawnerPlaceholder : MonoBehaviour
             {
                 if (allItemsItem.TryGetComponent<Item>(out Item? item))
                 {
-                    AdminMenuPlugin.AdminMenuLogger.LogInfo($"Item: {item.DisplayName} | InternalName: {InternalName.text}");
                     if (item.DisplayName == Cost.text)
                     {
                         Global.code.Player.playerStorage.AddItem(Utility.Instantiate<Item>(item), true);
@@ -67,7 +66,7 @@ public class SpawnerPlaceholder : MonoBehaviour
                 }
                 else
                 {
-                    AdminMenuPlugin.AdminMenuLogger.LogInfo($"Not an Item: {item.DisplayName} | InternalName: {InternalName.text}");
+                    AdminMenuPlugin.AdminMenuLogger.LogInfo($"Not an Item: {item.DisplayName} | ItemID: {item.ItemID}");
                 }
             }
         }
@@ -80,22 +79,18 @@ public class SpawnerPlaceholder : MonoBehaviour
         foreach (Transform allItemsItem in RM.code.allItems.items)
         {
             allItemsItem.TryGetComponent<Item>(out Item? item2);
-            if (item2)
+            if (!item2) continue;
+            if (item2.DisplayName != Cost.text) continue;
+            try
             {
-                if (item2.DisplayName == Cost.text)
-                {
-                    try
-                    {
-                        Utilities.CustomUseItem(item2);
-                    }
-                    catch
-                    {
-                        AdminMenuPlugin.AdminMenuLogger.LogInfo($"Failed to use item: {Cost.text}");
-                    }
-
-                    return;
-                }
+                Utilities.CustomUseItem(item2, true);
             }
+            catch
+            {
+                AdminMenuPlugin.AdminMenuLogger.LogInfo($"Failed to use item: {Cost.text}");
+            }
+
+            return;
         }
     }
 

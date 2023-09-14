@@ -136,10 +136,10 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="AdminUI.cs" />
         <Compile Include="Plugin.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs"/>
-        <Compile Include="SpawnerPlaceholder.cs" />
+        <Compile Include="UI\AdminUI.cs" />
+        <Compile Include="UI\SpawnerPlaceholder.cs" />
         <Compile Include="Util\Checks.cs" />
         <Compile Include="Util\Utils.cs" />
         <Compile Include="Util\Variables.cs" />

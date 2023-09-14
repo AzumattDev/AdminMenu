@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using AdminMenu.Util;
@@ -8,10 +7,7 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using Fusion;
 using HarmonyLib;
-using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.Diagnostics;
-using UnityEngine.Serialization;
 using Object = UnityEngine.Object;
 
 namespace AdminMenu
@@ -20,7 +16,7 @@ namespace AdminMenu
     public class AdminMenuPlugin : BaseUnityPlugin
     {
         internal const string ModName = "AdminMenu";
-        internal const string ModVersion = "1.1.0";
+        internal const string ModVersion = "1.1.1";
         internal const string Author = "Azumatt";
         private const string ModGUID = Author + "." + ModName;
         private readonly Harmony _harmony = new(ModGUID);
