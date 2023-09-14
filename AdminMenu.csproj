@@ -98,6 +98,9 @@
         <Reference Include="UniTask">
           <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Sunkenland\Sunkenland_Data\Managed\UniTask.dll</HintPath>
         </Reference>
+        <Reference Include="Unity.Localization">
+          <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Sunkenland\Sunkenland_Data\Managed\Unity.Localization.dll</HintPath>
+        </Reference>
         <Reference Include="Unity.TextMeshPro">
           <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Sunkenland\Sunkenland_Data\Managed\Unity.TextMeshPro.dll</HintPath>
         </Reference>
@@ -119,6 +122,9 @@
         <Reference Include="UnityEngine.InputLegacyModule">
           <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Sunkenland\Sunkenland_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
         </Reference>
+        <Reference Include="UnityEngine.LocalizationModule">
+          <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Sunkenland\Sunkenland_Data\Managed\UnityEngine.LocalizationModule.dll</HintPath>
+        </Reference>
         <Reference Include="UnityEngine.PhysicsModule">
           <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Sunkenland\Sunkenland_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
         </Reference>
@@ -133,6 +139,7 @@
         <Compile Include="AdminUI.cs" />
         <Compile Include="Plugin.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="SpawnerPlaceholder.cs" />
         <Compile Include="Util\Checks.cs" />
         <Compile Include="Util\Utils.cs" />
         <Compile Include="Util\Variables.cs" />

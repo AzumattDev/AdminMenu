@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using AdminMenu.Util;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -11,9 +12,15 @@ namespace AdminMenu
     public class AdminUI : MonoBehaviour
     {
         public static AdminUI Instance = null!;
-        public static RectTransform Canvas = null!;
-        public static GameObject AdminMenu = null!;
-        public static RectTransform LeftButtonList = null!;
+        public RectTransform Canvas = null!;
+        public GameObject AdminMenu = null!;
+        public ScrollRect ScrollViewLeft = null!;
+        public RectTransform LeftButtonList = null!;
+        public RectTransform LeftSpawnerList = null!;
+        public RectTransform DefaultRightView = null!;
+        public RectTransform SpawnerView = null!;
+        public Transform spawnerPlaceholder = null!;
+        public SpawnerPlaceholder spawnerPlaceholderComp = null!;
         public static Color RedTextColor { get; private set; }
         public static Color GreenTextColor = new Color();
         public List<GameObject> buttons = new();
@@ -45,6 +52,7 @@ namespace AdminMenu
         public Button visualCheats = null!;
         public Button weaponCheats = null!;
         public Button miscCheats = null!;
+        public Button spawnerCheats = null!;
 
 
         [Header("Left - Buttons")] 
@@ -106,6 +114,7 @@ namespace AdminMenu
             GreenTextColor = ColorUtility.TryParseHtmlString("#25C835", out var color) ? color : Color.green;
             RedTextColor = unlimitedHealthDescription.color;
             CreateEventListeners();
+            Refresh(RM.code.allItems.items);
         }
 
 
@@ -145,10 +154,20 @@ namespace AdminMenu
             visualCheats.onClick.AddListener(() => ToggleSubButtons(visualCheats));
             weaponCheats.onClick.AddListener(() => ToggleSubButtons(weaponCheats));
             miscCheats.onClick.AddListener(() => ToggleSubButtons(miscCheats));
+            spawnerCheats.onClick.AddListener(ToggleSpawnerList);
         }
 
         public void ToggleSubButtons(Button buttonClicked)
         {
+            if (!LeftButtonList.gameObject.activeSelf)
+            {
+                LeftButtonList.gameObject.SetActive(true);
+                if(LeftSpawnerList.gameObject.activeSelf)
+                    LeftSpawnerList.gameObject.SetActive(false);
+                if(SpawnerView.gameObject.activeSelf)
+                    SpawnerView.gameObject.SetActive(false);
+                ScrollViewLeft.content = LeftButtonList;
+            }
             // Determine the category of the clicked button
             string category = DetermineButtonCategory(buttonClicked);
 
@@ -156,6 +175,24 @@ namespace AdminMenu
             foreach (var button in buttons)
             {
                 button.SetActive(button.name.Contains(category));
+            }
+        }
+        
+        public void ToggleSpawnerList()
+        {
+            if (!LeftSpawnerList.gameObject.activeSelf)
+            {
+                LeftSpawnerList.gameObject.SetActive(true);
+                if(LeftButtonList.gameObject.activeSelf)
+                    LeftButtonList.gameObject.SetActive(false);
+                ScrollViewLeft.content = LeftSpawnerList;
+            }
+
+            if (!SpawnerView.gameObject.activeSelf)
+            {
+                SpawnerView.gameObject.SetActive(true);
+                if(DefaultRightView.gameObject.activeSelf)
+                    DefaultRightView.gameObject.SetActive(false);
             }
         }
 
@@ -173,6 +210,36 @@ namespace AdminMenu
 
             // Return an empty string if no match found
             return string.Empty;
+        }
+
+        public void Refresh(List<Transform> items)
+        {
+           //foreach (SpawnerPlaceholder component in LeftSpawnerList)
+           //    Destroy(component.gameObject);
+            foreach (Transform transform1 in items)
+            {
+                if (transform1)
+                {
+                    Item component = transform1.GetComponent<Item>();
+                    if (component == null)
+                        continue;
+                    Transform transform2 = GameObject.Instantiate<Transform>(this.spawnerPlaceholder, this.LeftSpawnerList, true);
+                    transform2.gameObject.SetActive(true);
+                    transform2.localScale = Vector3.one;
+                    var placeholderComp = transform2.GetComponent<SpawnerPlaceholder>();
+                    if (component.icon)
+                        placeholderComp.Icon.texture = component.icon;
+                    placeholderComp.DisplayName.text = $"{component.DisplayName} ({component.ItemID})";
+                    placeholderComp.InternalName.text = component.GetDisplayDescription();
+                    //transform2.GetChild(3).GetComponent<Text>().text = component.GetPrice().ToString(CultureInfo.InvariantCulture);
+                    placeholderComp.Cost.text = component.DisplayName;
+                    if (component.GetComponent<Equipment>())
+                        placeholderComp.Armor.text = component.GetComponent<Equipment>().armor.ToString();
+                    if (component.GetComponent<WeaponRaycast>())
+                        placeholderComp.Damage.text = component.GetComponent<WeaponRaycast>().damage.ToString(CultureInfo.InvariantCulture);
+                    
+                }
+            }
         }
         
         public void UnlimitedHealth_OnClick()

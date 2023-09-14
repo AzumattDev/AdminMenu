@@ -92,6 +92,9 @@ namespace AdminMenu
             if (Checks.AdminPanelActive() && !__instance.uiDialogue.IsActive)
             {
                 Utilities.TurnOnUI();
+                Cursor.visible = true;
+                Cursor.SetCursor(RM.code.cursorNormal, Vector2.zero, CursorMode.Auto);
+                Cursor.lockState = CursorLockMode.None;
             }
 
             Checks.CheckPlayer();

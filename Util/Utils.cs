@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.Localization;
 
 namespace AdminMenu.Util
 {
@@ -259,6 +260,135 @@ namespace AdminMenu.Util
         }
         
         internal static float GetKey(KeyCode key) => !Input.GetKey(key) ? 0.0f : 1f;
+
+
+        public static void CustomUseItem(Item item, bool isQuickSlot = false)
+        {
+            if (gInst.player.IsBusy)
+                return;
+            FPSPlayer.code.SwimmerMove = false;
+            PlayerWeapons.code.StartWithQuickSlot = false;
+            Global.code.uiCombat.HideHint();
+            if (!(bool)(UnityEngine.Object)item)
+            {
+                if (!((bool)(UnityEngine.Object)gInst.player.weaponInHand & isQuickSlot))
+                    return;
+                PlayerWeapons.code.HolsterCurrentWeapon();
+            }
+            else
+            {
+                if ((bool)(UnityEngine.Object)item.GetComponent<Food>())
+                {
+                    Food component = item.GetComponent<Food>();
+                    if (component.bleedAmount > 0.0 && gInst.player.Bleeding <= 0.0)
+                        return;
+                    gInst.player.Hunger += component.foodAmount;
+                    gInst.player.Thirst += component.waterAmount;
+                    gInst.player.Energy += component.foodAmount * 0.2f;
+                    gInst.player.Energy += component.waterAmount * 0.2f;
+                    gInst.player.Stamina += component.energyAmount;
+                    gInst.player.Stamina += component.staminaAmount;
+                    gInst.player.Energy += component.energyAmount;
+                    gInst.player.Bleeding -= component.bleedAmount;
+                    if (!component.Buff.localizedItemName.IsEmpty)
+                        Utility.Instantiate<BuffInstance>(RM.code.BuffPrefab).GetComponent<BuffInstance>().InitBuff(component.Buff);
+                    gInst.player.AddHealth(component.healthAmount, 3, Vector3.zero, false, false, false);
+                    if (component.poisonAmount > 0)
+                    {
+                        gInst.player.AddHealth(-component.poisonAmount, 2, Vector3.zero, false, false, false);
+                        RM.code.PlayOneShot(gInst.player.sndFoodPoisoning, 1f);
+                    }
+
+                    gInst.player.UpdateBuffHint();
+                    --item.Amount;
+                    if (item.Amount <= 0)
+                        UnityEngine.Object.DestroyImmediate(item.gameObject);
+                    if ((bool)(UnityEngine.Object)component.itemReceivedAfterEat && UnityEngine.Random.Range(0, 100) < component.itemReceiveChance)
+                        gInst.player.playerStorage.AddItem(Utility.Instantiate(component.itemReceivedAfterEat));
+                    if ((bool)(UnityEngine.Object)item.sndUse)
+                        RM.code.PlayOneShot(item.sndUse, UnityEngine.Random.Range(0.9f, 1.1f));
+                    else if (component.foodAmount > 0)
+                        RM.code.PlayOneShot(gInst.player.sndEat, UnityEngine.Random.Range(0.9f, 1.1f));
+                    else if (component.waterAmount > 0.0)
+                        RM.code.PlayOneShot(gInst.player.sndDrink, UnityEngine.Random.Range(0.9f, 1.1f));
+                    else if (component.healthAmount > 0)
+                        RM.code.PlayOneShot(gInst.player.sndUseBandage, UnityEngine.Random.Range(0.9f, 1.1f));
+                    gInst.player.StartCoroutine(gInst.player.RefreshInventoryUI());
+                }
+                else if ((bool)(UnityEngine.Object)item.GetComponent<WeaponRaycast>())
+                {
+                    gInst.player.QuitConnectWire();
+                    if ((bool)(UnityEngine.Object)gInst.player.MyBuildController.m_BuildingHelpers.m_CurrentPreview)
+                        gInst.player.MyBuildController.SetSelectedPiece(null);
+                    bool flag = !(FPSRigidBodyWalker.code.isUnderWater && item.ItemID == RM.code.Torch.ItemID);
+                    if (flag)
+                    {
+                        if ((bool)(UnityEngine.Object)gInst.player.weaponInHand && gInst.player.weaponInHand._item == item && (bool)(UnityEngine.Object)PlayerWeapons.code.CurrentWeaponBehaviorComponent && PlayerWeapons.code.CurrentWeaponBehaviorComponent.WeaponItem.ItemID == item.ItemID && PlayerWeapons.code.CurrentWeaponBehaviorComponent.InitDone)
+                        {
+                            PlayerWeapons.code.HolsterCurrentWeapon();
+                        }
+                        else
+                        {
+                            PlayerWeapons.code.StartWithQuickSlot = isQuickSlot;
+                            PlayerWeapons.code.SelectWeaponByPrefab(item.transform);
+                        }
+
+                        Global.code.uiCombat.HideFishPenal();
+                    }
+
+                    gInst.player.CS();
+                }
+                else if (item.TryGetComponent<BuildingPiece>(out BuildingPiece _))
+                {
+                    Item obj;
+                    if (RM.code.ItemDictionary.TryGetValue(item.ItemID, out obj))
+                    {
+                        gInst.player.CanSnap = false;
+                        gInst.player.MyBuildController.SetSelectedPiece(obj.GetComponent<BuildingPiece>());
+                        if (Global.code.uiInventory.gameObject.activeSelf)
+                            Global.code.uiInventory.Close();
+                        gInst.player.DecorationPiece = item.ItemID;
+                        if (!isQuickSlot)
+                            gInst.player.Invoke("ChangeInventoryState", 0.01f);
+                    }
+                    else
+                        gInst.player.LogError(string.Format("物品ID {0}不存在", item.ItemID));
+                }
+                else
+                {
+                    BuildingItem component1;
+                    if (item.TryGetComponent<BuildingItem>(out component1))
+                    {
+                        BuildingPiece buildPiece = component1.GetBuildPiece();
+                        if ((bool)(UnityEngine.Object)buildPiece)
+                        {
+                            gInst.player.CanSnap = false;
+                            gInst.player.MyBuildController.SetSelectedPiece(buildPiece);
+                            if (Global.code.uiInventory.gameObject.activeSelf)
+                                Global.code.uiInventory.Close();
+                            gInst.player.CurBuildingItem = component1;
+                            if (!isQuickSlot)
+                                gInst.player.Invoke("ChangeInventoryState", 0.01f);
+                        }
+                    }
+                    else
+                    {
+                        Blueprint component2;
+                        if (item.TryGetComponent<Blueprint>(out component2) && GlobalDataHelper.IsGlobalDataValid() && Mainframe.code.M_GlobalData.AddLearnedBlueprint(item.ItemID))
+                        {
+                            if ((bool)(UnityEngine.Object)Global.code)
+                                Global.code.uiCombat.OpenBlueprintPenal(component2, Global.code.uiInventory.gameObject.activeSelf);
+                            
+                            gInst.player.StartCoroutine(gInst.player.RefreshInventoryUI());
+                        }
+                    }
+                }
+
+                if ((bool)(UnityEngine.Object)gInst.player.weaponInHand)
+                    return;
+                Global.code.uiCombat.ammoText.text = "∞";
+            }
+        }
 
         private class RingArray
         {
