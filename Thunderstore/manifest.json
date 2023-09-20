@@ -2,7 +2,7 @@
   "name": "AdminMenu",
   "version_number": "1.2.0",
   "website_url": "https://discord.gg/pdHgy6Bsng",
-  "description": "A mod that enables the vanilla Admin/Cheat panel in the Escape menu.",
+  "description": "A mod that gives you an Admin/Cheat panel by pressing F3 (default keybind)",
   "dependencies": [
     "SunkenlandModding-BepInExPack_Sunkenland-5.4.22"
   ]
