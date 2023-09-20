@@ -43,6 +43,11 @@ namespace AdminMenu
                 Utilities.TurnOnUI();
             }
 
+            if (Checks.AdminPanelActive() && Input.GetKeyDown(KeyCode.Escape))
+            {
+                AdminUI.SetActive(false);
+            }
+
             if (!Utilities.gInst) return;
             if (Checks.AdminPanelActive() && !Utilities.gInst.uiDialogue.IsActive)
             {

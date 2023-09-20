@@ -19,8 +19,7 @@ public class SpawnerPlaceholder : MonoBehaviour
     public Text Armor = null!;
     public Text Level = null!;
 
-    [Header("Spawner View Right")] 
-    public GameObject SpawnerViewRight = null!;
+    [Header("Spawner View Right")] public GameObject SpawnerViewRight = null!;
     public InputField Search = null!;
     public InputField Amount = null!;
     public Text AmountText = null!;
@@ -40,7 +39,7 @@ public class SpawnerPlaceholder : MonoBehaviour
         //Search.onEndEdit.AddListener(AdminUI.SearchChanged); TODO: Implement search
         Btn.OnRightClick += RightClickItem;
     }
-    
+
     /* Doing this for now until fully implemented*/
     public void Update()
     {
@@ -52,21 +51,31 @@ public class SpawnerPlaceholder : MonoBehaviour
     public void SpawnItem()
     {
         AdminMenuPlugin.AdminMenuLogger.LogInfo($"SpawnItem: {DisplayName.text}");
-        if (PutInInventory.isOn)
+
+        if (PutInInventory == null || !PutInInventory.isOn)
+            return;
+
+        if (RM.code == null || RM.code.allItems == null)
         {
-            foreach (Transform allItemsItem in RM.code.allItems.items)
+            AdminMenuPlugin.AdminMenuLogger.LogError("RM or its properties are null!");
+            return;
+        }
+
+        foreach (Transform allItemsItem in RM.code.allItems.items)
+        {
+            if (allItemsItem != null && allItemsItem.TryGetComponent<Item>(out Item? item))
             {
-                if (allItemsItem.TryGetComponent<Item>(out Item? item))
+                if (item.DisplayName == Cost.text)
                 {
-                    if (item.DisplayName == Cost.text)
+                    if (Global.code.Player.playerStorage != null)
                     {
-                        Global.code.Player.playerStorage.AddItem(Utility.Instantiate<Item>(item), true);
+                        Global.code.Player.playerStorage.AddItem(Utility.Instantiate<Item>(item), true, true);
                         return;
                     }
-                }
-                else
-                {
-                    AdminMenuPlugin.AdminMenuLogger.LogInfo($"Not an Item: {item.DisplayName} | ItemID: {item.ItemID}");
+                    else
+                    {
+                        AdminMenuPlugin.AdminMenuLogger.LogError("playerStorage is null!");
+                    }
                 }
             }
         }
@@ -78,19 +87,23 @@ public class SpawnerPlaceholder : MonoBehaviour
             return;
         foreach (Transform allItemsItem in RM.code.allItems.items)
         {
-            allItemsItem.TryGetComponent<Item>(out Item? item2);
-            if (!item2) continue;
-            if (item2.DisplayName != Cost.text) continue;
-            try
+            if (allItemsItem != null && allItemsItem.TryGetComponent<Item>(out Item? item2))
             {
-                Utilities.CustomUseItem(item2, true);
-            }
-            catch
-            {
-                AdminMenuPlugin.AdminMenuLogger.LogInfo($"Failed to use item: {Cost.text}");
-            }
+                if (!item2) continue;
+                if (item2.DisplayName != Cost.text) continue;
+                try
+                {
+                    Utilities.CustomUseItem(item2, false);
+                    //Global.code.Player.UseItem(item2);
+                }
+                catch
+                {
+                    AdminMenuPlugin.AdminMenuLogger.LogInfo($"Failed to use item: {Cost.text}");
+                }
 
-            return;
+
+                return;
+            }
         }
     }
 
@@ -107,18 +120,18 @@ public class SpawnerPlaceholder : MonoBehaviour
         PutInInventoryDescription.text = value ? AdminUI.Act : AdminUI.Inact;
         PutInInventoryDescription.color = value ? AdminUI.GreenTextColor : AdminUI.RedTextColor;
     }
-
 }
 
 [RequireComponent(typeof(Button))]
 public class ExtButton : Button
 {
     public delegate void RightClickAction();
+
     public event RightClickAction OnRightClick = null!;
 
     public override void OnPointerClick(PointerEventData eventData)
     {
-        if(eventData.button == PointerEventData.InputButton.Right)
+        if (eventData.button == PointerEventData.InputButton.Right)
         {
             OnRightClick?.Invoke();
         }
