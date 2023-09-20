@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using AdminMenu.Util;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -47,16 +48,14 @@ namespace AdminMenu
         public static float timeOfDay = 0f;
         public static bool instantKill = false;
 
-        [Header("Main Buttons")] 
-        public Button playerCheats = null!;
+        [Header("Main Buttons")] public Button playerCheats = null!;
         public Button visualCheats = null!;
         public Button weaponCheats = null!;
         public Button miscCheats = null!;
         public Button spawnerCheats = null!;
 
 
-        [Header("Left - Buttons")] 
-        public Button UnlimitedHealth = null!;
+        [Header("Left - Buttons")] public Button UnlimitedHealth = null!;
         public Button UnlimitedStamina = null!;
         public Button UnlimitedEnergy = null!;
         public Button UnlimitedOxygen = null!;
@@ -76,8 +75,7 @@ namespace AdminMenu
         public Button NoClip = null!;
         public Slider TimeOfDay = null!;
 
-        [Header("Right - Buttons")] 
-        public Button AllowPlayers = null!;
+        [Header("Right - Buttons")] public Button AllowPlayers = null!;
         public Button InstantKill = null!;
         public Button SavePlayer = null!;
         public Button LoadPlayer = null!;
@@ -85,9 +83,10 @@ namespace AdminMenu
         public Button LoadWorld = null!;
         public Button TriggerAutoSave = null!;
         public Button LoadAutoSave = null!;
+        public TMP_InputField Search = null!;
+        public TMP_InputField Amount = null!;
 
-        [Header("Button Descriptions")] 
-        public Text unlimitedHealthDescription = null!;
+        [Header("Button Descriptions")] public Text unlimitedHealthDescription = null!;
         public Text unlimitedStaminaDescription = null!;
         public Text unlimitedEnergyDescription = null!;
         public Text unlimitedOxygenDescription = null!;
@@ -114,6 +113,7 @@ namespace AdminMenu
             GreenTextColor = ColorUtility.TryParseHtmlString("#25C835", out Color color) ? color : Color.green;
             RedTextColor = unlimitedHealthDescription.color;
             CreateEventListeners();
+            //Search.onEndEdit.AddListener(SearchChanged); //TODO: Implement search
             Refresh(RM.code.allItems.items);
         }
 
@@ -149,7 +149,7 @@ namespace AdminMenu
             TriggerAutoSave.onClick.AddListener(TriggerAutoSave_OnClick);
             LoadAutoSave.onClick.AddListener(LoadAutoSave_OnClick);
 
-            
+
             playerCheats.onClick.AddListener(() => ToggleSubButtons(playerCheats));
             visualCheats.onClick.AddListener(() => ToggleSubButtons(visualCheats));
             weaponCheats.onClick.AddListener(() => ToggleSubButtons(weaponCheats));
@@ -162,12 +162,13 @@ namespace AdminMenu
             if (!LeftButtonList.gameObject.activeSelf)
             {
                 LeftButtonList.gameObject.SetActive(true);
-                if(LeftSpawnerList.gameObject.activeSelf)
+                if (LeftSpawnerList.gameObject.activeSelf)
                     LeftSpawnerList.gameObject.SetActive(false);
-                if(SpawnerView.gameObject.activeSelf)
+                if (SpawnerView.gameObject.activeSelf)
                     SpawnerView.gameObject.SetActive(false);
                 ScrollViewLeft.content = LeftButtonList;
             }
+
             // Determine the category of the clicked button
             string category = DetermineButtonCategory(buttonClicked);
 
@@ -177,23 +178,24 @@ namespace AdminMenu
                 button.SetActive(button.name.Contains(category));
             }
         }
-        
+
         public void ToggleSpawnerList()
         {
             if (!LeftSpawnerList.gameObject.activeSelf)
             {
                 LeftSpawnerList.gameObject.SetActive(true);
-                if(LeftButtonList.gameObject.activeSelf)
+                if (LeftButtonList.gameObject.activeSelf)
                     LeftButtonList.gameObject.SetActive(false);
                 ScrollViewLeft.content = LeftSpawnerList;
             }
+
             // TODO: Finish the search and object pooling to re-enable this
-           //if (!SpawnerView.gameObject.activeSelf)
-           //{
-           //    SpawnerView.gameObject.SetActive(true);
-           //    if(DefaultRightView.gameObject.activeSelf)
-           //        DefaultRightView.gameObject.SetActive(false);
-           //}
+            if (!SpawnerView.gameObject.activeSelf)
+            {
+                SpawnerView.gameObject.SetActive(true);
+                if (DefaultRightView.gameObject.activeSelf)
+                    DefaultRightView.gameObject.SetActive(false);
+            }
         }
 
         private string DetermineButtonCategory(Button button)
@@ -221,24 +223,47 @@ namespace AdminMenu
                     Item component = transform1.GetComponent<Item>();
                     if (component == null)
                         continue;
-                    Transform transform2 = GameObject.Instantiate<Transform>(this.spawnerPlaceholder, this.LeftSpawnerList, true);
-                    transform2.gameObject.SetActive(true);
-                    transform2.localScale = Vector3.one;
-                    var placeholderComp = transform2.GetComponent<SpawnerPlaceholder>();
-                    if (component.icon)
-                        placeholderComp.Icon.texture = component.icon;
-                    placeholderComp.DisplayName.text = $"{component.DisplayName} ({component.ItemID})";
-                    placeholderComp.InternalName.text = component.GetDisplayDescription();
-                    placeholderComp.Cost.text = component.DisplayName;
-                    if (component.GetComponent<Equipment>())
-                        placeholderComp.Armor.text = component.GetComponent<Equipment>().armor.ToString();
-                    if (component.GetComponent<WeaponRaycast>())
-                        placeholderComp.Damage.text = component.GetComponent<WeaponRaycast>().damage.ToString(CultureInfo.InvariantCulture);
-                    
+                    if (string.IsNullOrWhiteSpace(Search.text) || component.DisplayName.Contains(Search.text))
+                    {
+                        Transform transform2 = GameObject.Instantiate<Transform>(this.spawnerPlaceholder, this.LeftSpawnerList, true);
+                        transform2.gameObject.SetActive(true);
+                        transform2.localScale = Vector3.one;
+                        var placeholderComp = transform2.GetComponent<SpawnerPlaceholder>();
+                        if (component.icon)
+                            placeholderComp.Icon.texture = component.icon;
+                        placeholderComp.DisplayName.text = $"{component.DisplayName} ({component.ItemID})";
+                        placeholderComp.InternalName.text = component.GetDisplayDescription();
+                        placeholderComp.Cost.text = component.DisplayName;
+                        if (component.GetComponent<Equipment>())
+                            placeholderComp.Armor.text = component.GetComponent<Equipment>().armor.ToString();
+                        if (component.GetComponent<WeaponRaycast>())
+                            placeholderComp.Damage.text = component.GetComponent<WeaponRaycast>().damage.ToString(CultureInfo.InvariantCulture);
+                    }
                 }
             }
         }
-        
+
+        public void SearchChanged(string str)
+        {
+            // Destroy all children in the LeftSpawnerList that are not the placeholder
+            foreach (Transform child in LeftSpawnerList.transform)
+            {
+                if (child != spawnerPlaceholder)
+                    Destroy(child.gameObject);
+            }
+
+            Refresh(RM.code.allItems.items);
+
+            // Log the text
+            AdminMenuPlugin.AdminMenuLogger.LogInfo($"SearchChanged: {str}");
+            //component.DisplayName.Contains(SpawnerPlaceholder.Instance.Search.text)
+        }
+
+        public void AmountSearchChanged(string str)
+        {
+            AdminMenuPlugin.AdminMenuLogger.LogInfo($"AmountSearchChanged: {str}");
+        }
+
         public void UnlimitedHealth_OnClick()
         {
             unlimitedHealth = !unlimitedHealth;
@@ -251,7 +276,6 @@ namespace AdminMenu
             unlimitedStamina = !unlimitedStamina;
             unlimitedStaminaDescription.color = unlimitedStamina ? GreenTextColor : RedTextColor;
             unlimitedStaminaDescription.text = unlimitedStamina ? Act : Inact;
-            
         }
 
         public void UnlimitedEnergy_OnClick()

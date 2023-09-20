@@ -1,5 +1,6 @@
 ﻿using AdminMenu;
 using AdminMenu.Util;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -19,9 +20,10 @@ public class SpawnerPlaceholder : MonoBehaviour
     public Text Armor = null!;
     public Text Level = null!;
 
-    [Header("Spawner View Right")] public GameObject SpawnerViewRight = null!;
-    public InputField Search = null!;
-    public InputField Amount = null!;
+    [Header("Spawner View Right")] 
+    public GameObject SpawnerViewRight = null!;
+    public TMP_InputField Search = null!;
+    public TMP_InputField Amount = null!;
     public Text AmountText = null!;
     public Text ShowFavoritesText = null!;
     public Text ShowFavoritesDescription = null!;
@@ -36,7 +38,6 @@ public class SpawnerPlaceholder : MonoBehaviour
         Instance = this;
         ShowFavorites.onValueChanged.AddListener(ShowFavoritesChanged);
         PutInInventory.onValueChanged.AddListener(PutInInventoryChanged);
-        //Search.onEndEdit.AddListener(AdminUI.SearchChanged); TODO: Implement search
         Btn.OnRightClick += RightClickItem;
     }
 
