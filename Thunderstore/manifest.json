@@ -1,6 +1,6 @@
 {
   "name": "AdminMenu",
-  "version_number": "1.1.1",
+  "version_number": "1.2.0",
   "website_url": "https://discord.gg/pdHgy6Bsng",
   "description": "A mod that enables the vanilla Admin/Cheat panel in the Escape menu.",
   "dependencies": [
