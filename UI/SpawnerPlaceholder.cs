@@ -62,6 +62,12 @@ public class SpawnerPlaceholder : MonoBehaviour
             return;
         }
 
+        int amountToSpawn = 1;
+        if (Amount != null && int.TryParse(Amount.text, out int parsedAmount))
+        {
+            amountToSpawn = parsedAmount;
+        }
+
         foreach (Transform allItemsItem in RM.code.allItems.items)
         {
             if (allItemsItem != null && allItemsItem.TryGetComponent<Item>(out Item? item))
@@ -70,7 +76,11 @@ public class SpawnerPlaceholder : MonoBehaviour
                 {
                     if (Global.code.Player.playerStorage != null)
                     {
-                        Global.code.Player.playerStorage.AddItem(Utility.Instantiate<Item>(item), true, true);
+                        for (int i = 0; i < amountToSpawn; ++i)
+                        {
+                            Global.code.Player.playerStorage.AddItem(Utility.Instantiate<Item>(item), true, true);
+                        }
+
                         return;
                     }
                     else
@@ -81,6 +91,7 @@ public class SpawnerPlaceholder : MonoBehaviour
             }
         }
     }
+
 
     public void RightClickItem()
     {

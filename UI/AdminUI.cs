@@ -113,7 +113,6 @@ namespace AdminMenu
             GreenTextColor = ColorUtility.TryParseHtmlString("#25C835", out Color color) ? color : Color.green;
             RedTextColor = unlimitedHealthDescription.color;
             CreateEventListeners();
-            //Search.onEndEdit.AddListener(SearchChanged); //TODO: Implement search
             PopulateList(RM.code.allItems.items);
         }
 
@@ -189,7 +188,6 @@ namespace AdminMenu
                 ScrollViewLeft.content = LeftSpawnerList;
             }
 
-            // TODO: Finish the search and object pooling to re-enable this
             if (!SpawnerView.gameObject.activeSelf)
             {
                 SpawnerView.gameObject.SetActive(true);
