@@ -1,11 +1,11 @@
 # Description
 
-## A mod that gives you an Admin/Cheat panel by pressing F3 (default keybind) and using LeftAlt to use the mouse.
+## A mod that gives you an Admin/Cheat panel by pressing F3 (default keybind)
 
 ---
 
 ### Additional Information:
-- To use the UI, you must be the host. Additionally, make sure to hold down LeftAlt to use the mouse.
+- To use the UI, you must be the host. It's not recommended to install this on any other machine besides the host. You will get kicked from games.
 - Default keybind to open this menu is F3, you can change it in the config. I do recommend using the [ConfigurationManager](https://www.nexusmods.com/sunkenland/mods/5) to change this keybind live while you're in-game.
 - The slider is Time of Day, it will change it for everyone.
 - No Clip mode has some additional perks due to the way it works. To clip through objects, the code allows short range teleporting when moving. This has some cool side effects, like being able to move super fast, jump super high, and of course swim super fast.
