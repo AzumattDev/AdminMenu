@@ -114,7 +114,7 @@ namespace AdminMenu
             RedTextColor = unlimitedHealthDescription.color;
             CreateEventListeners();
             //Search.onEndEdit.AddListener(SearchChanged); //TODO: Implement search
-            Refresh(RM.code.allItems.items);
+            PopulateList(RM.code.allItems.items);
         }
 
 
@@ -213,8 +213,8 @@ namespace AdminMenu
             // Return an empty string if no match found
             return string.Empty;
         }
-
-        public void Refresh(List<Transform> items)
+        
+        public void PopulateList(List<Transform> items)
         {
             foreach (Transform transform1 in items)
             {
@@ -223,40 +223,53 @@ namespace AdminMenu
                     Item component = transform1.GetComponent<Item>();
                     if (component == null)
                         continue;
-                    if (string.IsNullOrWhiteSpace(Search.text) || component.DisplayName.Contains(Search.text))
-                    {
-                        Transform transform2 = GameObject.Instantiate<Transform>(this.spawnerPlaceholder, this.LeftSpawnerList, true);
-                        transform2.gameObject.SetActive(true);
-                        transform2.localScale = Vector3.one;
-                        var placeholderComp = transform2.GetComponent<SpawnerPlaceholder>();
-                        if (component.icon)
-                            placeholderComp.Icon.texture = component.icon;
-                        placeholderComp.DisplayName.text = $"{component.DisplayName} ({component.ItemID})";
-                        placeholderComp.InternalName.text = component.GetDisplayDescription();
-                        placeholderComp.Cost.text = component.DisplayName;
-                        if (component.GetComponent<Equipment>())
-                            placeholderComp.Armor.text = component.GetComponent<Equipment>().armor.ToString();
-                        if (component.GetComponent<WeaponRaycast>())
-                            placeholderComp.Damage.text = component.GetComponent<WeaponRaycast>().damage.ToString(CultureInfo.InvariantCulture);
-                    }
+            
+                    Transform instantiated = Instantiate(this.spawnerPlaceholder, this.LeftSpawnerList, true);
+                    instantiated.gameObject.SetActive(true);
+                    instantiated.localScale = Vector3.one;
+                    var placeholderComp = instantiated.GetComponent<SpawnerPlaceholder>();
+            
+                    if (component.icon)
+                        placeholderComp.Icon.texture = component.icon;
+                
+                    placeholderComp.DisplayName.text = $"{component.DisplayName} ({component.ItemID})";
+                    placeholderComp.InternalName.text = component.GetDisplayDescription();
+                    placeholderComp.Cost.text = component.DisplayName;
+            
+                    if (component.GetComponent<Equipment>())
+                        placeholderComp.Armor.text = component.GetComponent<Equipment>().armor.ToString();
+                    if (component.GetComponent<WeaponRaycast>())
+                        placeholderComp.Damage.text = component.GetComponent<WeaponRaycast>().damage.ToString(CultureInfo.InvariantCulture);
                 }
             }
         }
-
-        public void SearchChanged(string str)
+        
+        public void FilterItems(string searchTerm)
         {
-            // Destroy all children in the LeftSpawnerList that are not the placeholder
             foreach (Transform child in LeftSpawnerList.transform)
             {
-                if (child != spawnerPlaceholder)
-                    Destroy(child.gameObject);
+                if (child == null || child == spawnerPlaceholder)
+                    continue;
+            
+                var placeholderComp = child.GetComponent<SpawnerPlaceholder>();
+                if (placeholderComp == null)
+                    continue;
+
+                if (string.IsNullOrWhiteSpace(searchTerm) || placeholderComp.DisplayName.text.Contains(searchTerm))
+                {
+                    child.gameObject.SetActive(true);
+                }
+                else
+                {
+                    child.gameObject.SetActive(false);
+                }
             }
-
-            Refresh(RM.code.allItems.items);
-
-            // Log the text
+        }
+        
+        public void SearchChanged(string str)
+        {
+            FilterItems(str);
             AdminMenuPlugin.AdminMenuLogger.LogInfo($"SearchChanged: {str}");
-            //component.DisplayName.Contains(SpawnerPlaceholder.Instance.Search.text)
         }
 
         public void AmountSearchChanged(string str)
