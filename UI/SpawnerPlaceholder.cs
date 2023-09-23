@@ -78,9 +78,9 @@ public class SpawnerPlaceholder : MonoBehaviour
                     {
                         for (int i = 0; i < amountToSpawn; ++i)
                         {
-                            Global.code.Player.playerStorage.AddItem(Utility.Instantiate<Item>(item), true, true);
+                           if (!Global.code.Player.playerStorage.AddItem(Utility.Instantiate<Item>(item), true))
+                            Global.code.Player.quickSlotStorage.AddItem(Utility.Instantiate<Item>(item), true);
                         }
-
                         return;
                     }
                     else

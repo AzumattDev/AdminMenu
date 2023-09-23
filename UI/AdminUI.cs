@@ -165,6 +165,8 @@ namespace AdminMenu
                     LeftSpawnerList.gameObject.SetActive(false);
                 if (SpawnerView.gameObject.activeSelf)
                     SpawnerView.gameObject.SetActive(false);
+                if (!DefaultRightView.gameObject.activeSelf)
+                    DefaultRightView.gameObject.SetActive(true);
                 ScrollViewLeft.content = LeftButtonList;
             }
 
@@ -253,7 +255,7 @@ namespace AdminMenu
                 if (placeholderComp == null)
                     continue;
 
-                if (string.IsNullOrWhiteSpace(searchTerm) || placeholderComp.DisplayName.text.Contains(searchTerm))
+                if (string.IsNullOrWhiteSpace(searchTerm) || placeholderComp.DisplayName.text.ToLower().Contains(searchTerm.ToLower()))
                 {
                     child.gameObject.SetActive(true);
                 }
