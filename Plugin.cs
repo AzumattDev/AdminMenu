@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using AdminMenu.Util;
@@ -16,28 +17,74 @@ namespace AdminMenu
     public class AdminMenuPlugin : BaseUnityPlugin
     {
         internal const string ModName = "AdminMenu";
-        internal const string ModVersion = "1.2.2";
+        internal const string ModVersion = "1.2.3";
         internal const string Author = "Azumatt";
         private const string ModGUID = Author + "." + ModName;
+        private static string ConfigFileName = ModGUID + ".cfg";
+        private static string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
         private readonly Harmony _harmony = new(ModGUID);
         public static readonly ManualLogSource AdminMenuLogger = BepInEx.Logging.Logger.CreateLogSource(ModName);
         public static AssetBundle? AssetBundle;
         public static GameObject AdminUI = null!;
-        public static ConfigEntry<KeyboardShortcut> openuiHotkey = null!;
+        public static ConfigEntry<KeyboardShortcut> OpenuiHotkey = null!;
+        public static ConfigEntry<Toggle> HideEmptyChests = null!;
+        public static ConfigEntry<Toggle> HideBrokenScavengeables = null!;
+        public static ConfigEntry<Toggle> HideCollectables = null!;
+
+        public enum Toggle
+        {
+            On = 1,
+            Off = 0
+        }
 
         public void Awake()
         {
-            openuiHotkey = Config.Bind("1 - General", "OpenUIHotkey", new KeyboardShortcut(KeyCode.F3), "The hotkey to open the admin UI");
+            OpenuiHotkey = Config.Bind("1 - General", "OpenUIHotkey", new KeyboardShortcut(KeyCode.F3), "The hotkey to open the admin UI");
+            HideEmptyChests = Config.Bind("1 - General", "Hide Empty Chests", Toggle.On, "Hide chests that have no items in them");
+            HideBrokenScavengeables = Config.Bind("1 - General", "Hide Broken Scavengeables", Toggle.On, "Hide scavengeables that have nothing left to give.");
+            HideCollectables = Config.Bind("1 - General", "Hide Collectables", Toggle.On, "Hide collectables that have nothing left to give.");
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
             LoadAssets();
             DontDestroyOnLoad(AdminUI);
+            SetupWatcher();
+        }
+
+        private void OnDestroy()
+        {
+            Config.Save();
+        }
+
+        private void SetupWatcher()
+        {
+            FileSystemWatcher watcher = new(Paths.ConfigPath, ConfigFileName);
+            watcher.Changed += ReadConfigValues;
+            watcher.Created += ReadConfigValues;
+            watcher.Renamed += ReadConfigValues;
+            watcher.IncludeSubdirectories = true;
+            watcher.SynchronizingObject = ThreadingHelper.SynchronizingObject;
+            watcher.EnableRaisingEvents = true;
+        }
+
+        private void ReadConfigValues(object sender, FileSystemEventArgs e)
+        {
+            if (!File.Exists(ConfigFileFullPath)) return;
+            try
+            {
+                AdminMenuLogger.LogDebug("ReadConfigValues called");
+                Config.Reload();
+            }
+            catch
+            {
+                AdminMenuLogger.LogError($"There was an issue loading your {ConfigFileName}");
+                AdminMenuLogger.LogError("Please check your config entries for spelling and format!");
+            }
         }
 
         void OnGUI()
         {
             if (!UIGameMenuAwakePatch.Admin) return;
-            if (openuiHotkey.Value.IsDown())
+            if (OpenuiHotkey.Value.IsDown())
             {
                 AdminUI.SetActive(!AdminUI.activeSelf);
                 Utilities.TurnOnUI();

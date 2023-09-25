@@ -14,7 +14,7 @@ static class GlobalCSPatch
     static void Postfix(Global __instance)
     {
         if (!UIGameMenuAwakePatch.Admin || !Utilities.gInst) return;
-        if (AdminMenuPlugin.openuiHotkey.Value.IsDown())
+        if (AdminMenuPlugin.OpenuiHotkey.Value.IsDown())
         {
             AdminMenuPlugin.AdminUI.SetActive(!AdminMenuPlugin.AdminUI.activeSelf);
             Utilities.TurnOnUI();

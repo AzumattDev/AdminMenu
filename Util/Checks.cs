@@ -144,7 +144,7 @@ public class Checks
             float num1 = Mathf.Abs(screenPoint2.y - screenPoint3.y);
             bool flag = !Utilities.IsEnemyVisible(Utilities.camInst.transform.position, position1);
             float num2;
-            if (Utilities.IsOnScreen(screenPoint1) && f < (double)Variables.fEnemies)
+            if (Utilities.IsOnScreen(screenPoint1) && f < (double)Variables.FEnemies)
             {
                 if (flag)
                 {
@@ -203,7 +203,7 @@ public class Checks
             float num1 = Mathf.Abs(screenPoint2.y - screenPoint3.y);
             bool flag = !Utilities.IsEnemyVisible(Utilities.camInst.transform.position, position1);
             float num2;
-            if (Utilities.IsOnScreen(screenPoint1) && f < (double)Variables.fEnemies)
+            if (Utilities.IsOnScreen(screenPoint1) && f < (double)Variables.FEnemies)
             {
                 if (flag)
                 {
@@ -250,7 +250,7 @@ public class Checks
             Vector3 screenPoint = Utilities.camInst.WorldToScreenPoint(position);
             float f = Vector3.Distance(Utilities.pcInst.transform.position, position);
             float health = component.Health;
-            if (Utilities.IsOnScreen(screenPoint) && f < (double)Variables.fFishes)
+            if (Utilities.IsOnScreen(screenPoint) && f < (double)Variables.FFishes)
             {
                 Utilities.DrawString(new Vector2(screenPoint.x, Screen.height - screenPoint.y), Utilities.NameReplacer(transform.name), Color.HSVToRGB(0.5f, 1f, 1f), fontStyle: FontStyle.Normal);
                 Vector2 pos5 = new(screenPoint.x, (float)(Screen.height - (double)screenPoint.y + 12.0));
@@ -278,7 +278,7 @@ public class Checks
             Vector3 screenPoint = Utilities.camInst.WorldToScreenPoint(transform.transform.position);
             float f = Vector3.Distance(Utilities.pcInst.transform.position, transform.transform.position);
             float health = component.health;
-            if (Utilities.IsOnScreen(screenPoint) && f < (double)Variables.fBirds)
+            if (Utilities.IsOnScreen(screenPoint) && f < (double)Variables.FBirds)
             {
                 Utilities.DrawString(new Vector2(screenPoint.x, Screen.height - screenPoint.y), Utilities.NameReplacer(transform.name), Color.HSVToRGB(0.07777778f, 0.275f, 1f), fontStyle: FontStyle.Normal);
                 Vector2 pos7 = new(screenPoint.x, (float)(Screen.height - (double)screenPoint.y + 12.0));
@@ -297,11 +297,16 @@ public class Checks
 
     private static void ProcessWorldScavengable(Scavengeable scavengable)
     {
+        if (AdminMenuPlugin.HideBrokenScavengeables.Value == AdminMenuPlugin.Toggle.On && scavengable.ChopAmount <= 0)
+        {
+            return;
+        }
+
         var position = scavengable.transform.position;
         Vector3 screenPoint = Utilities.camInst.WorldToScreenPoint(position);
         float distance = Vector3.Distance(Utilities.pcInst.transform.position, position);
 
-        if (Utilities.IsOnScreen(screenPoint) && distance < (double)Variables.fLoot)
+        if (Utilities.IsOnScreen(screenPoint) && distance < (double)Variables.FLoot)
         {
             Utilities.DrawString(new Vector2(screenPoint.x, Screen.height - screenPoint.y),
                 Utilities.LootReplacer(scavengable.name[0].ToString().ToUpper()) + Utilities.LootReplacer(scavengable.name).Substring(1),
@@ -317,10 +322,16 @@ public class Checks
 
     private static void ProcessWorldChest(Chest chest)
     {
-        Vector3 screenPoint = Utilities.camInst.WorldToScreenPoint(chest.transform.position);
-        float distance = Vector3.Distance(Utilities.pcInst.transform.position, chest.transform.position);
+        if (AdminMenuPlugin.HideEmptyChests.Value == AdminMenuPlugin.Toggle.On && chest._storage.IsEmpty())
+        {
+            return;
+        }
 
-        if (Utilities.IsOnScreen(screenPoint) && distance < (double)Variables.fLoot)
+        var position = chest.transform.position;
+        Vector3 screenPoint = Utilities.camInst.WorldToScreenPoint(position);
+        float distance = Vector3.Distance(Utilities.pcInst.transform.position, position);
+
+        if (Utilities.IsOnScreen(screenPoint) && distance < (double)Variables.FLoot)
         {
             Utilities.DrawString(new Vector2(screenPoint.x, Screen.height - screenPoint.y),
                 Utilities.LootReplacer(chest.name[0].ToString().ToUpper()) + Utilities.LootReplacer(chest.name).Substring(1),
@@ -336,10 +347,16 @@ public class Checks
 
     private static void ProcessWorldCollectableContinuingInteraction(CollectableContinuingInteraction interaction)
     {
-        Vector3 screenPoint = Utilities.camInst.WorldToScreenPoint(interaction.transform.position);
-        float distance = Vector3.Distance(Utilities.pcInst.transform.position, interaction.transform.position);
+        if (AdminMenuPlugin.HideCollectables.Value == AdminMenuPlugin.Toggle.On && !interaction.gameObject.activeSelf)
+        {
+            return;
+        }
+        
+        var position = interaction.transform.position;
+        Vector3 screenPoint = Utilities.camInst.WorldToScreenPoint(position);
+        float distance = Vector3.Distance(Utilities.pcInst.transform.position, position);
 
-        if (Utilities.IsOnScreen(screenPoint) && distance < (double)Variables.fLoot)
+        if (Utilities.IsOnScreen(screenPoint) && distance < (double)Variables.FLoot)
         {
             Utilities.DrawString(new Vector2(screenPoint.x, Screen.height - screenPoint.y),
                 Utilities.LootReplacer(interaction.name),
