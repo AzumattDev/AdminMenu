@@ -347,7 +347,7 @@ public class Checks
 
     private static void ProcessWorldCollectableContinuingInteraction(CollectableContinuingInteraction interaction)
     {
-        if (AdminMenuPlugin.HideCollectables.Value == AdminMenuPlugin.Toggle.On && !interaction.gameObject.activeSelf)
+        if (AdminMenuPlugin.HideCollectibles.Value == AdminMenuPlugin.Toggle.On && !interaction.gameObject.activeSelf)
         {
             return;
         }

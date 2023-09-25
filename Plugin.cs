@@ -29,7 +29,7 @@ namespace AdminMenu
         public static ConfigEntry<KeyboardShortcut> OpenuiHotkey = null!;
         public static ConfigEntry<Toggle> HideEmptyChests = null!;
         public static ConfigEntry<Toggle> HideBrokenScavengeables = null!;
-        public static ConfigEntry<Toggle> HideCollectables = null!;
+        public static ConfigEntry<Toggle> HideCollectibles = null!;
 
         public enum Toggle
         {
@@ -42,7 +42,7 @@ namespace AdminMenu
             OpenuiHotkey = Config.Bind("1 - General", "OpenUIHotkey", new KeyboardShortcut(KeyCode.F3), "The hotkey to open the admin UI");
             HideEmptyChests = Config.Bind("1 - General", "Hide Empty Chests", Toggle.On, "Hide chests that have no items in them");
             HideBrokenScavengeables = Config.Bind("1 - General", "Hide Broken Scavengeables", Toggle.On, "Hide scavengeables that have nothing left to give.");
-            HideCollectables = Config.Bind("1 - General", "Hide Collectables", Toggle.On, "Hide collectables that have nothing left to give.");
+            HideCollectibles = Config.Bind("1 - General", "Hide Collectibles", Toggle.On, "Hide collectibles that have nothing left to give.");
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
             LoadAssets();
