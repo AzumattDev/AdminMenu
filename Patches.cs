@@ -109,7 +109,8 @@ static class UIGameMenuAwakePatch
         CheatPanelRoot = __instance.CheatPanelRoot;
         if (!Admin) return;
         //CheatPanelRoot.SetActive(true);
-        AdminMenuPlugin.AdminUI = Object.Instantiate(AdminMenuPlugin.AdminUI, Utilities.gInst.uiCombat.transform, false);
+        if(AdminMenuPlugin.AdminUI != null) return;
+        AdminMenuPlugin.AdminUI = Object.Instantiate(AdminMenuPlugin.AdminUITemp, Utilities.gInst.uiCombat.transform, false);
         AdminMenuPlugin.AdminUI.SetActive(false);
     }
 }

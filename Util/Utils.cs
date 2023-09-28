@@ -36,6 +36,30 @@ namespace AdminMenu.Util
             RPGCamera.code.blur.enabled = Checks.AdminPanelActive() && !Utilities.gInst.uiDialogue.IsActive;
         }
 
+        public static void RemoveDrops()
+        {
+            // foreach DiscardedItem near the player in a configurable radius, destroy it
+            foreach (var item in UnityEngine.Object.FindObjectsOfType<DiscardedItem>())
+            {
+                if (Vector3.Distance(item.transform.position, Utilities.pcInst.transform.position) <= AdminMenuPlugin.RemoveDropsRadius.Value)
+                {
+                    if (item.Runner.IsServer || item.Object.HasStateAuthority && item.Object.HasInputAuthority || item.Runner.IsHostPlayer(Global.code.Player.playerDummy.PlayerRef))
+                    {
+                        // This client has authority to despawn the object
+                        item.Runner.Despawn(item.Object);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            item.Runner.Despawn(item.Object);
+                        } catch {}
+                    }
+
+                }
+            }
+        }
+
         public static bool IsOnScreen(Vector3 position) => position.y > 0.00999999977648258 && position.y < Screen.height - 5.0 && position.z > 0.00999999977648258;
 
         public static GUIStyle StringStyle { get; set; } = new(GUI.skin.label);

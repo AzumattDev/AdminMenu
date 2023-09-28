@@ -28,8 +28,10 @@ public class Checks
                 break;
             }
             case false:
-                Global.code.Player.Health = 100f;
-                Global.code.Player.MaxHealth = 100f;
+                //AdminMenuPlugin.AdminMenuLogger.LogInfo("Player health: " + Utilities.gInst.player.Health);
+                //AdminMenuPlugin.AdminMenuLogger.LogInfo("Player max health: " + Utilities.gInst.player.MaxHealth);
+                Global.code.Player.Health = 160f;
+                Global.code.Player.MaxHealth = 160f;
                 break;
         }
 

@@ -1,6 +1,6 @@
 {
   "name": "AdminMenu",
-  "version_number": "1.2.3",
+  "version_number": "1.2.4",
   "website_url": "https://discord.gg/pdHgy6Bsng",
   "description": "A mod that gives you an Admin/Cheat panel by pressing F3 (default keybind)",
   "dependencies": [

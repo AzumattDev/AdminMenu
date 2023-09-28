@@ -17,7 +17,7 @@ namespace AdminMenu
     public class AdminMenuPlugin : BaseUnityPlugin
     {
         internal const string ModName = "AdminMenu";
-        internal const string ModVersion = "1.2.3";
+        internal const string ModVersion = "1.2.4";
         internal const string Author = "Azumatt";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -25,8 +25,11 @@ namespace AdminMenu
         private readonly Harmony _harmony = new(ModGUID);
         public static readonly ManualLogSource AdminMenuLogger = BepInEx.Logging.Logger.CreateLogSource(ModName);
         public static AssetBundle? AssetBundle;
+        public static GameObject AdminUITemp = null!;
         public static GameObject AdminUI = null!;
         public static ConfigEntry<KeyboardShortcut> OpenuiHotkey = null!;
+        public static ConfigEntry<KeyboardShortcut> RemoveDropsHotkey = null!;
+        public static ConfigEntry<float> RemoveDropsRadius = null!;
         public static ConfigEntry<Toggle> HideEmptyChests = null!;
         public static ConfigEntry<Toggle> HideBrokenScavengeables = null!;
         public static ConfigEntry<Toggle> HideCollectibles = null!;
@@ -46,7 +49,6 @@ namespace AdminMenu
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
             LoadAssets();
-            DontDestroyOnLoad(AdminUI);
             SetupWatcher();
         }
 
@@ -104,7 +106,7 @@ namespace AdminMenu
             Checks.CheckESP();
         }
 
-        private static AssetBundle GetAssetBundleFromResources(string filename)
+        internal static AssetBundle GetAssetBundleFromResources(string filename)
         {
             var execAssembly = Assembly.GetExecutingAssembly();
             var resourceName = execAssembly.GetManifestResourceNames()
@@ -119,7 +121,8 @@ namespace AdminMenu
         public static void LoadAssets()
         {
             AssetBundle = GetAssetBundleFromResources("sunkenadminui");
-            AdminUI = AssetBundle.LoadAsset<GameObject>("AdminUI");
+            AdminUITemp = AssetBundle.LoadAsset<GameObject>("AdminUI");
+            DontDestroyOnLoad(AdminMenuPlugin.AdminUITemp);
             AssetBundle.Unload(false);
         }
     }
