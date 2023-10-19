@@ -109,7 +109,7 @@ static class UIGameMenuAwakePatch
         CheatPanelRoot = __instance.CheatPanelRoot;
         if (!Admin) return;
         //CheatPanelRoot.SetActive(true);
-        if(AdminMenuPlugin.AdminUI != null) return;
+        if (AdminMenuPlugin.AdminUI != null) return;
         AdminMenuPlugin.AdminUI = Object.Instantiate(AdminMenuPlugin.AdminUITemp, Utilities.gInst.uiCombat.transform, false);
         AdminMenuPlugin.AdminUI.SetActive(false);
     }
@@ -160,5 +160,20 @@ static class PlayerCharacterUpdateKeysPatch
     {
         if (!Checks.AdminPanelActive()) return true;
         return false;
+    }
+}
+
+[HarmonyPatch(typeof(PlayerCharacter), nameof(PlayerCharacter.AddHealth))]
+static class PlayerAddHealthPatch
+{
+    static bool Prefix(PlayerCharacter __instance, float point,
+        int HitPart,
+        Vector3 damageSource,
+        bool canBleed,
+        bool showBiteFx,
+        bool IsMeleeWeapon)
+    {
+        // Outright prevent damage (hopefully)
+        return !(point < 0) || HitPart == 3 || !AdminUI.unlimitedHealth;
     }
 }

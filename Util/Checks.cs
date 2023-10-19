@@ -18,10 +18,10 @@ public class Checks
         {
             case true:
             {
-                Utilities.gInst.player.Health = 1000000f;
-                Utilities.gInst.player.MaxHealth = 1000000f;
-                Utilities.gInst.player.health = Utilities.gInst.player.maxHealth;
-                Utilities.gInst.player.targetHealth = Utilities.gInst.player.maxHealth;
+                //Utilities.gInst.player.Health = 1000000f;
+                //Utilities.gInst.player.MaxHealth = 1000000f;
+                Utilities.gInst.player._health = Utilities.gInst.player.MaxHealth;
+                Utilities.gInst.player._targetHealth = Utilities.gInst.player.MaxHealth;
                 Utilities.gInst.player.BodyTemperature = 100f;
                 if (!(Utilities.gInst.player.Bleeding <= 0.0))
                     Utilities.gInst.player.Bleeding = 0.0f;
@@ -42,27 +42,27 @@ public class Checks
 
         if (AdminUI.unlimitedEnergy)
         {
-            Utilities.gInst.player.energy = Utilities.gInst.player.MaxEnergy;
+            Utilities.gInst.player._energy = Utilities.gInst.player.MaxEnergy;
         }
 
         if (AdminUI.unlimitedStamina)
         {
-            Utilities.gInst.player.stamina = 130f;
+            Utilities.gInst.player._stamina = 130f;
         }
 
         if (AdminUI.noHunger)
         {
-            Utilities.gInst.player.hunger = 100f;
+            Utilities.gInst.player._hunger = 100f;
         }
 
         if (AdminUI.noThirst)
         {
-            Utilities.gInst.player.thirst = 100f;
+            Utilities.gInst.player._thirst = 100f;
         }
 
         if (AdminUI.transform && Input.GetKeyDown(KeyCode.LeftControl))
         {
-            Utilities.gInst.player.transform.position += 0.25f * Utilities.gInst.player.mainCamera.transform.forward;
+            Utilities.gInst.player.transform.position += 0.25f * Utilities.gInst.player._mainCamera.transform.forward;
             AdminMenuPlugin.AdminMenuLogger.LogInfo("Teleported player forward, current position: " + Utilities.gInst.player.transform.position);
         }
     }

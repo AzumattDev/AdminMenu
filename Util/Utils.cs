@@ -14,7 +14,7 @@ namespace AdminMenu.Util
         private static Texture2D drawingTex;
         private static Color lastTexColour;
 
-        public static Camera camInst => gInst.player.mainCamera;
+        public static Camera camInst => gInst.player._mainCamera;
 
         public static PlayerCharacter pcInst => gInst.player;
 
