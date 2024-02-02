@@ -14,26 +14,26 @@ namespace AdminMenu.Util
         private static Texture2D drawingTex;
         private static Color lastTexColour;
 
-        public static Camera camInst => gInst.player._mainCamera;
+        public static Camera CamInst => GInst.player._mainCamera;
 
-        public static PlayerCharacter pcInst => gInst.player;
+        public static PlayerCharacter PCInst => GInst.player;
 
-        public static Storage storInst => gInst.player.playerStorage;
+        public static Storage StorInst => GInst.player.playerStorage;
 
-        public static WeaponBehavior wbInst => PlayerWeapons.code.CurrentWeaponBehaviorComponent;
+        public static WeaponBehavior WbInst => PlayerWeapons.code.CurrentWeaponBehaviorComponent;
 
-        public static Global gInst => Global.code;
+        public static Global GInst => Global.code;
 
-        public static WorldScene wsInst => WorldScene.code;
+        public static WorldScene WsInst => WorldScene.code;
 
-        public static FPSPlayer fpspInst => FPSPlayer.code;
+        public static FPSPlayer FpspInst => FPSPlayer.code;
 
-        public static RM rmInst => RM.code;
+        public static RM RmInst => RM.code;
 
         public static void TurnOnUI()
         {
-            Utilities.gInst.OnGUI = true;
-            RPGCamera.code.blur.enabled = Checks.AdminPanelActive() && !Utilities.gInst.uiDialogue.IsActive;
+            Utilities.GInst.OnGUI = true;
+            RPGCamera.code.blur.enabled = Checks.AdminPanelActive() && !Utilities.GInst.uiDialogue.IsActive;
         }
 
         public static void RemoveDrops()
@@ -41,7 +41,7 @@ namespace AdminMenu.Util
             // foreach DiscardedItem near the player in a configurable radius, destroy it
             foreach (var item in UnityEngine.Object.FindObjectsOfType<DiscardedItem>())
             {
-                if (Vector3.Distance(item.transform.position, Utilities.pcInst.transform.position) <= AdminMenuPlugin.RemoveDropsRadius.Value)
+                if (Vector3.Distance(item.transform.position, Utilities.PCInst.transform.position) <= AdminMenuPlugin.RemoveDropsRadius.Value)
                 {
                     if (item.Runner.IsServer || item.Object.HasStateAuthority && item.Object.HasInputAuthority || item.Runner.IsHostPlayer(Global.code.Player.playerDummy.PlayerRef))
                     {
@@ -288,14 +288,14 @@ namespace AdminMenu.Util
 
         public static void CustomUseItem(Item item, bool isQuickSlot = false)
         {
-            if (gInst.player.IsBusy)
+            if (GInst.player.IsBusy)
                 return;
             FPSPlayer.code.SwimmerMove = false;
             PlayerWeapons.code.StartWithQuickSlot = false;
             Global.code.uiCombat.HideHint();
             if (!item)
             {
-                if (gInst.player.weaponInHand & isQuickSlot) PlayerWeapons.code.HolsterCurrentWeapon();
+                if (GInst.player.weaponInHand & isQuickSlot) PlayerWeapons.code.HolsterCurrentWeapon();
             }
             else
             {
@@ -303,33 +303,33 @@ namespace AdminMenu.Util
                 {
                     if (item.TryGetComponent<Food>(out var component))
                     {
-                        if (component.bleedAmount > 0.0 && gInst.player.Bleeding <= 0.0)
+                        if (component.bleedAmount > 0.0 && GInst.player.Bleeding <= 0.0)
                             return;
-                        gInst.player.Hunger += component.foodAmount;
-                        gInst.player.Thirst += component.waterAmount;
-                        gInst.player.Energy += component.foodAmount * 0.2f;
-                        gInst.player.Energy += component.waterAmount * 0.2f;
-                        gInst.player.Stamina += component.energyAmount;
-                        gInst.player.Stamina += component.staminaAmount;
-                        gInst.player.Energy += component.energyAmount;
-                        gInst.player.Bleeding -= component.bleedAmount;
+                        GInst.player.Hunger += component.foodAmount;
+                        GInst.player.Thirst += component.waterAmount;
+                        GInst.player.Energy += component.foodAmount * 0.2f;
+                        GInst.player.Energy += component.waterAmount * 0.2f;
+                        GInst.player.Stamina += component.energyAmount;
+                        GInst.player.Stamina += component.staminaAmount;
+                        GInst.player.Energy += component.energyAmount;
+                        GInst.player.Bleeding -= component.bleedAmount;
                         if (!component.Buff.localizedItemName.IsEmpty)
                         {
-                            Utility.Instantiate<BuffInstance>(RM.code.BuffPrefab).GetComponent<BuffInstance>().InitBuff(component.Buff);
+                            Utility.Instantiate<BuffInstance>(RM.code.BuffPrefab).GetComponent<BuffInstance>().InitBuff(component);
                         }
 
-                        gInst.player.AddHealth(component.healthAmount, 3, Vector3.zero, false, false, false);
+                        GInst.player.AddHealth(component.healthAmount, 3, Vector3.zero, false, false, false);
                         if (component.poisonAmount > 0)
                         {
-                            gInst.player.AddHealth(-component.poisonAmount, 2, Vector3.zero, false, false, false);
-                            RM.code.PlayOneShot(gInst.player.sndFoodPoisoning, 1f);
+                            GInst.player.AddHealth(-component.poisonAmount, 2, Vector3.zero, false, false, false);
+                            RM.code.PlayOneShot(GInst.player.sndFoodPoisoning, 1f);
                         }
 
-                        gInst.player.UpdateBuffHint();
+                        GInst.player.UpdateBuffHint();
                         --item.Amount;
                         if (component.itemReceivedAfterEat && UnityEngine.Random.Range(0, 100) < component.itemReceiveChance)
                         {
-                            gInst.player.playerStorage.AddItem(Utility.Instantiate(component.itemReceivedAfterEat));
+                            GInst.player.playerStorage.AddItem(Utility.Instantiate(component.itemReceivedAfterEat));
                         }
 
                         if (item.sndUse)
@@ -338,27 +338,27 @@ namespace AdminMenu.Util
                         }
                         else if (component.foodAmount > 0)
                         {
-                            RM.code.PlayOneShot(gInst.player.sndEat, UnityEngine.Random.Range(0.9f, 1.1f));
+                            RM.code.PlayOneShot(GInst.player.sndEat, UnityEngine.Random.Range(0.9f, 1.1f));
                         }
                         else if (component.waterAmount > 0.0)
                         {
-                            RM.code.PlayOneShot(gInst.player.sndDrink, UnityEngine.Random.Range(0.9f, 1.1f));
+                            RM.code.PlayOneShot(GInst.player.sndDrink, UnityEngine.Random.Range(0.9f, 1.1f));
                         }
                         else if (component.healthAmount > 0)
                         {
-                            RM.code.PlayOneShot(gInst.player.sndUseBandage, UnityEngine.Random.Range(0.9f, 1.1f));
+                            RM.code.PlayOneShot(GInst.player.sndUseBandage, UnityEngine.Random.Range(0.9f, 1.1f));
                         }
                         //gInst.player.StartCoroutine(gInst.player.RefreshInventoryUI());
                     }
                     else if (item.GetComponent<WeaponRaycast>())
                     {
-                        gInst.player.QuitConnectWire();
-                        if (gInst.player.MyBuildController.m_BuildingHelpers.m_CurrentPreview)
-                            gInst.player.MyBuildController.SetSelectedPiece(null);
+                        GInst.player.QuitConnectWire();
+                        if (GInst.player.MyBuildController.m_BuildingHelpers.m_CurrentPreview)
+                            GInst.player.MyBuildController.SetSelectedPiece(null);
                         bool flag = !(FPSRigidBodyWalker.code.isUnderWater && item.ItemID == RM.code.Torch.ItemID);
                         if (flag)
                         {
-                            if (gInst.player.weaponInHand && gInst.player.weaponInHand._item == item && PlayerWeapons.code.CurrentWeaponBehaviorComponent 
+                            if (GInst.player.weaponInHand && GInst.player.weaponInHand._item == item && PlayerWeapons.code.CurrentWeaponBehaviorComponent 
                                 && PlayerWeapons.code.CurrentWeaponBehaviorComponent.WeaponItem.ItemID == item.ItemID && PlayerWeapons.code.CurrentWeaponBehaviorComponent.InitDone)
                             {
                                 PlayerWeapons.code.HolsterCurrentWeapon();
@@ -372,52 +372,52 @@ namespace AdminMenu.Util
                             Global.code.uiCombat.HideFishPenal();
                         }
 
-                        gInst.player.CS();
+                        GInst.player.CS();
                     }
                     else if (item.TryGetComponent<BuildingPiece>(out BuildingPiece _))
                     {
                         if (RM.code.ItemDictionary.TryGetValue(item.ItemID, out Item obj))
                         {
-                            gInst.player.CanSnap = false;
-                            gInst.player.MyBuildController.SetSelectedPiece(obj.GetComponent<BuildingPiece>());
+                            GInst.player.CanSnap = false;
+                            GInst.player.MyBuildController.SetSelectedPiece(obj.GetComponent<BuildingPiece>());
                             if (Global.code.uiInventory.gameObject.activeSelf)
                                 Global.code.uiInventory.Close();
-                            gInst.player.DecorationPiece = item.ItemID;
+                            GInst.player.DecorationPiece = item.ItemID;
                             if (!isQuickSlot)
-                                gInst.player.Invoke("ChangeInventoryState", 0.01f);
+                                GInst.player.Invoke("ChangeInventoryState", 0.01f);
                         }
                         else
-                            gInst.player.LogError($"ItemID {item.ItemID} does not exist");
+                            GInst.player.LogError($"ItemID {item.ItemID} does not exist");
                     }
                     else
                     {
-                        if (item.TryGetComponent<BuildingItem>(out BuildingItem component1))
+                        if (item.TryGetComponent<BuildingContainer>(out BuildingContainer component1))
                         {
                             BuildingPiece buildPiece = component1.GetBuildPiece();
                             if (buildPiece)
                             {
-                                gInst.player.CanSnap = false;
-                                gInst.player.MyBuildController.SetSelectedPiece(buildPiece);
+                                GInst.player.CanSnap = false;
+                                GInst.player.MyBuildController.SetSelectedPiece(buildPiece);
                                 if (Global.code.uiInventory.gameObject.activeSelf)
                                     Global.code.uiInventory.Close();
-                                gInst.player.CurBuildingItem = component1;
+                                GInst.player.curBuildingContainer = component1;
                                 if (!isQuickSlot)
-                                    gInst.player.Invoke("ChangeInventoryState", 0.01f);
+                                    GInst.player.Invoke("ChangeInventoryState", 0.01f);
                             }
                         }
                         else
                         {
-                            if (item.TryGetComponent<Blueprint>(out Blueprint component2) && GlobalDataHelper.IsGlobalDataValid() && Mainframe.code.M_GlobalData.AddLearnedBlueprint(item.ItemID))
+                            if (item.TryGetComponent<Blueprint>(out Blueprint component2) && GlobalDataHelper.IsGlobalDataValid && Mainframe.code.GlobalData.AddLearnedBlueprint(item.ItemID))
                             {
                                 if (Global.code)
                                     Global.code.uiCombat.OpenBlueprintPenal(component2, Global.code.uiInventory.gameObject.activeSelf);
 
-                                gInst.player.StartCoroutine(gInst.player.RefreshInventoryUI());
+                                GInst.player.StartCoroutine(GInst.player.RefreshInventoryUI());
                             }
                         }
                     }
 
-                    if (gInst.player.weaponInHand)
+                    if (GInst.player.weaponInHand)
                         return;
                     Global.code.uiCombat.ammoText.text = "∞";
                 }

@@ -17,7 +17,7 @@ namespace AdminMenu
     public class AdminMenuPlugin : BaseUnityPlugin
     {
         internal const string ModName = "AdminMenu";
-        internal const string ModVersion = "1.2.5";
+        internal const string ModVersion = "1.3.0";
         internal const string Author = "Azumatt";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -97,8 +97,8 @@ namespace AdminMenu
                 AdminUI.SetActive(false);
             }
 
-            if (!Utilities.gInst) return;
-            if (Checks.AdminPanelActive() && !Utilities.gInst.uiDialogue.IsActive)
+            if (!Utilities.GInst) return;
+            if (Checks.AdminPanelActive() && !Utilities.GInst.uiDialogue.IsActive)
             {
                 Utilities.TurnOnUI();
             }
@@ -109,13 +109,9 @@ namespace AdminMenu
         internal static AssetBundle GetAssetBundleFromResources(string filename)
         {
             var execAssembly = Assembly.GetExecutingAssembly();
-            var resourceName = execAssembly.GetManifestResourceNames()
-                .Single(str => str.EndsWith(filename));
-
-            using (var stream = execAssembly.GetManifestResourceStream(resourceName))
-            {
-                return AssetBundle.LoadFromStream(stream);
-            }
+            var resourceName = execAssembly.GetManifestResourceNames().Single(str => str.EndsWith(filename));
+            using var stream = execAssembly.GetManifestResourceStream(resourceName);
+            return AssetBundle.LoadFromStream(stream);
         }
 
         public static void LoadAssets()

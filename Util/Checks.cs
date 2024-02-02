@@ -12,7 +12,7 @@ public class Checks
 
     public static void CheckPlayer()
     {
-        if (Utilities.gInst.player.IsDead) return;
+        if (Utilities.GInst.player.IsDead) return;
 
         switch (AdminUI.unlimitedHealth)
         {
@@ -20,11 +20,11 @@ public class Checks
             {
                 //Utilities.gInst.player.Health = 1000000f;
                 //Utilities.gInst.player.MaxHealth = 1000000f;
-                Utilities.gInst.player._health = Utilities.gInst.player.MaxHealth;
-                Utilities.gInst.player._targetHealth = Utilities.gInst.player.MaxHealth;
-                Utilities.gInst.player.BodyTemperature = 100f;
-                if (!(Utilities.gInst.player.Bleeding <= 0.0))
-                    Utilities.gInst.player.Bleeding = 0.0f;
+                Utilities.GInst.player._health = Utilities.GInst.player.MaxHealth;
+                Utilities.GInst.player._targetHealth = Utilities.GInst.player.MaxHealth;
+                Utilities.GInst.player.BodyTemperature = 100f;
+                if (!(Utilities.GInst.player.Bleeding <= 0.0))
+                    Utilities.GInst.player.Bleeding = 0.0f;
                 break;
             }
             case false:
@@ -37,39 +37,39 @@ public class Checks
 
         if (AdminUI.unlimitedAir)
         {
-            Utilities.gInst.player.Air = Utilities.gInst.player.MaxAir;
+            Utilities.GInst.player.Air = Utilities.GInst.player.MaxAir;
         }
 
         if (AdminUI.unlimitedEnergy)
         {
-            Utilities.gInst.player._energy = Utilities.gInst.player.MaxEnergy;
+            Utilities.GInst.player._energy = Utilities.GInst.player.MaxEnergy;
         }
 
         if (AdminUI.unlimitedStamina)
         {
-            Utilities.gInst.player._stamina = 130f;
+            Utilities.GInst.player._stamina = 130f;
         }
 
         if (AdminUI.noHunger)
         {
-            Utilities.gInst.player._hunger = 100f;
+            Utilities.GInst.player._hunger = 100f;
         }
 
         if (AdminUI.noThirst)
         {
-            Utilities.gInst.player._thirst = 100f;
+            Utilities.GInst.player._thirst = 100f;
         }
 
         if (AdminUI.transform && Input.GetKeyDown(KeyCode.LeftControl))
         {
-            Utilities.gInst.player.transform.position += 0.25f * Utilities.gInst.player._mainCamera.transform.forward;
-            AdminMenuPlugin.AdminMenuLogger.LogInfo("Teleported player forward, current position: " + Utilities.gInst.player.transform.position);
+            Utilities.GInst.player.transform.position += 0.25f * Utilities.GInst.player._mainCamera.transform.forward;
+            AdminMenuPlugin.AdminMenuLogger.LogInfo("Teleported player forward, current position: " + Utilities.GInst.player.transform.position);
         }
     }
 
     public static void CheckWeapon()
     {
-        if (Utilities.gInst.player.weaponInHand == null) return;
+        if (Utilities.GInst.player.weaponInHand == null) return;
 
         if (AdminUI.unlimitedAmmo)
         {
@@ -78,16 +78,16 @@ public class Checks
 
         if (AdminUI.weaponNoRecoil)
         {
-            Utilities.gInst.player.weaponInHand.recoil = 0.0f;
-            Utilities.gInst.player.weaponInHand.horizontalKick = 0.0f;
-            Utilities.gInst.player.weaponInHand.verticalKick = 0.0f;
-            Utilities.gInst.player.weaponInHand.viewClimbSide = 0.0f;
-            Utilities.gInst.player.weaponInHand.viewClimbUp = 0.0f;
+            Utilities.GInst.player.weaponInHand.recoil = 0.0f;
+            Utilities.GInst.player.weaponInHand.horizontalKick = 0.0f;
+            Utilities.GInst.player.weaponInHand.verticalKick = 0.0f;
+            Utilities.GInst.player.weaponInHand.viewClimbSide = 0.0f;
+            Utilities.GInst.player.weaponInHand.viewClimbUp = 0.0f;
         }
 
         if (AdminUI.weaponNoSpread)
         {
-            Utilities.gInst.player.weaponInHand.spread = 0.0f;
+            Utilities.GInst.player.weaponInHand.spread = 0.0f;
         }
     }
 
@@ -97,21 +97,21 @@ public class Checks
             return;
 
         if (AdminUI.enemyESP)
-            DisplayInfoForEntities(Utilities.wsInst.allCharacters.items, ProcessCharacter);
+            DisplayInfoForEntities(Utilities.WsInst.allCharacters.items, ProcessCharacter);
         if (AdminUI.playerESP)
-            DisplayInfoForEntities(Utilities.wsInst.allPlayerDummies.items, ProcessCharacterPlayer);
+            DisplayInfoForEntities(Utilities.WsInst.allPlayerDummies.items, ProcessCharacterPlayer);
 
         if (AdminUI.fishESP)
-            DisplayInfoForEntities(Utilities.wsInst.fishes.items, ProcessFish);
+            DisplayInfoForEntities(Utilities.WsInst.fishes.items, ProcessFish);
 
         if (AdminUI.birdESP)
-            DisplayInfoForEntities(Utilities.wsInst.birds.items, ProcessBird);
+            DisplayInfoForEntities(Utilities.WsInst.birds.items, ProcessBird);
 
         if (AdminUI.lootESP)
         {
-            DisplayInfoForEntities(Utilities.wsInst.worldScavengables, ProcessWorldScavengable);
-            DisplayInfoForEntities(Utilities.wsInst.worldCollectableContinuingInteractions, ProcessWorldCollectableContinuingInteraction);
-            DisplayInfoForEntities(Utilities.wsInst.worldChests, ProcessWorldChest);
+            DisplayInfoForEntities(Utilities.WsInst.worldScavengables, ProcessWorldScavengable);
+            DisplayInfoForEntities(Utilities.WsInst.worldCollectableContinuingInteractions, ProcessWorldCollectableContinuingInteraction);
+            DisplayInfoForEntities(Utilities.WsInst.worldChests, ProcessWorldChest);
         }
     }
 
@@ -136,15 +136,15 @@ public class Checks
         if (component != null)
         {
             var position = transform.transform.position;
-            Vector3 screenPoint1 = Utilities.camInst.WorldToScreenPoint(position);
+            Vector3 screenPoint1 = Utilities.CamInst.WorldToScreenPoint(position);
             var position1 = component.eye.transform.position;
-            Vector3 screenPoint2 = Utilities.camInst.WorldToScreenPoint(position1);
-            Vector3 screenPoint3 = Utilities.camInst.WorldToScreenPoint(component.transform.position);
-            float f = Vector3.Distance(Utilities.pcInst.transform.position, position);
+            Vector3 screenPoint2 = Utilities.CamInst.WorldToScreenPoint(position1);
+            Vector3 screenPoint3 = Utilities.CamInst.WorldToScreenPoint(component.transform.position);
+            float f = Vector3.Distance(Utilities.PCInst.transform.position, position);
             float health = component.health;
             string pText = component.weapon.ToString();
             float num1 = Mathf.Abs(screenPoint2.y - screenPoint3.y);
-            bool flag = !Utilities.IsEnemyVisible(Utilities.camInst.transform.position, position1);
+            bool flag = !Utilities.IsEnemyVisible(Utilities.CamInst.transform.position, position1);
             float num2;
             if (Utilities.IsOnScreen(screenPoint1) && f < (double)Variables.FEnemies)
             {
@@ -192,18 +192,18 @@ public class Checks
         if (transform == null) return;
 
         PlayerDummy component = transform.GetComponent<PlayerDummy>();
-        if (component != null && component.Object && component.Object.IsValid && (component.CharacterGuid != Utilities.gInst.Player.playerDummy.CharacterGuid))
+        if (component != null && component.Object && component.Object.IsValid && (component.CharacterGuid != Utilities.GInst.Player.playerDummy.CharacterGuid))
         {
             var position = transform.transform.position;
-            Vector3 screenPoint1 = Utilities.camInst.WorldToScreenPoint(position);
+            Vector3 screenPoint1 = Utilities.CamInst.WorldToScreenPoint(position);
             var position1 = component.eye.transform.position;
-            Vector3 screenPoint2 = Utilities.camInst.WorldToScreenPoint(position1);
-            Vector3 screenPoint3 = Utilities.camInst.WorldToScreenPoint(component.transform.position);
-            float f = Vector3.Distance(Utilities.pcInst.transform.position, position);
+            Vector3 screenPoint2 = Utilities.CamInst.WorldToScreenPoint(position1);
+            Vector3 screenPoint3 = Utilities.CamInst.WorldToScreenPoint(component.transform.position);
+            float f = Vector3.Distance(Utilities.PCInst.transform.position, position);
             //float health = component;
             //string pText = component.weapon.ToString();
             float num1 = Mathf.Abs(screenPoint2.y - screenPoint3.y);
-            bool flag = !Utilities.IsEnemyVisible(Utilities.camInst.transform.position, position1);
+            bool flag = !Utilities.IsEnemyVisible(Utilities.CamInst.transform.position, position1);
             float num2;
             if (Utilities.IsOnScreen(screenPoint1) && f < (double)Variables.FEnemies)
             {
@@ -249,8 +249,8 @@ public class Checks
         if (component != null)
         {
             var position = transform.transform.position;
-            Vector3 screenPoint = Utilities.camInst.WorldToScreenPoint(position);
-            float f = Vector3.Distance(Utilities.pcInst.transform.position, position);
+            Vector3 screenPoint = Utilities.CamInst.WorldToScreenPoint(position);
+            float f = Vector3.Distance(Utilities.PCInst.transform.position, position);
             float health = component.Health;
             if (Utilities.IsOnScreen(screenPoint) && f < (double)Variables.FFishes)
             {
@@ -277,8 +277,8 @@ public class Checks
         Bird? component = transform.GetComponent<Bird>();
         if (component != null)
         {
-            Vector3 screenPoint = Utilities.camInst.WorldToScreenPoint(transform.transform.position);
-            float f = Vector3.Distance(Utilities.pcInst.transform.position, transform.transform.position);
+            Vector3 screenPoint = Utilities.CamInst.WorldToScreenPoint(transform.transform.position);
+            float f = Vector3.Distance(Utilities.PCInst.transform.position, transform.transform.position);
             float health = component.health;
             if (Utilities.IsOnScreen(screenPoint) && f < (double)Variables.FBirds)
             {
@@ -305,8 +305,8 @@ public class Checks
         }
 
         var position = scavengable.transform.position;
-        Vector3 screenPoint = Utilities.camInst.WorldToScreenPoint(position);
-        float distance = Vector3.Distance(Utilities.pcInst.transform.position, position);
+        Vector3 screenPoint = Utilities.CamInst.WorldToScreenPoint(position);
+        float distance = Vector3.Distance(Utilities.PCInst.transform.position, position);
 
         if (Utilities.IsOnScreen(screenPoint) && distance < (double)Variables.FLoot)
         {
@@ -330,8 +330,8 @@ public class Checks
         }
 
         var position = chest.transform.position;
-        Vector3 screenPoint = Utilities.camInst.WorldToScreenPoint(position);
-        float distance = Vector3.Distance(Utilities.pcInst.transform.position, position);
+        Vector3 screenPoint = Utilities.CamInst.WorldToScreenPoint(position);
+        float distance = Vector3.Distance(Utilities.PCInst.transform.position, position);
 
         if (Utilities.IsOnScreen(screenPoint) && distance < (double)Variables.FLoot)
         {
@@ -355,8 +355,8 @@ public class Checks
         }
         
         var position = interaction.transform.position;
-        Vector3 screenPoint = Utilities.camInst.WorldToScreenPoint(position);
-        float distance = Vector3.Distance(Utilities.pcInst.transform.position, position);
+        Vector3 screenPoint = Utilities.CamInst.WorldToScreenPoint(position);
+        float distance = Vector3.Distance(Utilities.PCInst.transform.position, position);
 
         if (Utilities.IsOnScreen(screenPoint) && distance < (double)Variables.FLoot)
         {

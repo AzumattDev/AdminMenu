@@ -13,7 +13,7 @@ static class GlobalCSPatch
 {
     static void Postfix(Global __instance)
     {
-        if (!UIGameMenuAwakePatch.Admin || !Utilities.gInst) return;
+        if (!UIGameMenuAwakePatch.Admin || !Utilities.GInst) return;
         if (AdminMenuPlugin.OpenuiHotkey.Value.IsDown())
         {
             AdminMenuPlugin.AdminUI.SetActive(!AdminMenuPlugin.AdminUI.activeSelf);
@@ -31,12 +31,12 @@ static class GlobalCSPatch
         Checks.CheckPlayer();
         Checks.CheckWeapon();
 
-        if (Utilities.fpspInst != null && AdminUI.noClip)
+        if (Utilities.FpspInst != null && AdminUI.noClip)
         {
             if (!Input.anyKey)
                 return;
-            Transform transform1 = Utilities.fpspInst.transform;
-            Transform transform2 = Utilities.camInst.transform;
+            Transform transform1 = Utilities.FpspInst.transform;
+            Transform transform2 = Utilities.CamInst.transform;
             float num1 = Utilities.GetKey(KeyCode.W) - Utilities.GetKey(KeyCode.S);
             float num2 = Utilities.GetKey(KeyCode.D) - Utilities.GetKey(KeyCode.A);
             transform1.position += (transform1.up * (Utilities.GetKey(KeyCode.Space) - Utilities.GetKey(KeyCode.LeftControl)) + transform2.forward * num1 + transform2.right * num2).normalized * (float)(10.0 + 15.0 * Utilities.GetKey(KeyCode.LeftShift)) * Time.deltaTime;
@@ -69,7 +69,7 @@ static class PlayerDummySpawnedPatch
                 PlayerDummy playerDummy2;
                 if (transform && transform.TryGetComponent<PlayerDummy>(out playerDummy) && playerDummy.Object && playerDummy.Object.IsValid && !(playerDummy.CharacterGuid != guid))
                 {
-                    if (guid == Utilities.gInst.Player.playerDummy.CharacterGuid)
+                    if (guid == Utilities.GInst.Player.playerDummy.CharacterGuid)
                     {
                         AdminMenuPlugin.AdminMenuLogger.LogInfo($"Setting Admin to true for {playerDummy.CharacterName} ({playerDummy.CharacterGuid})");
                         // UIGameMenuAwakePatch.CheatPanelRoot.SetActive(true);
@@ -78,14 +78,14 @@ static class PlayerDummySpawnedPatch
                 }
                 else if (transform && transform.TryGetComponent<PlayerDummy>(out playerDummy2) && playerDummy2.Object && playerDummy2.Object.IsValid && (playerDummy2.CharacterGuid != guid))
                 {
-                    if (guid != Utilities.gInst.Player.playerDummy.CharacterGuid)
+                    if (guid != Utilities.GInst.Player.playerDummy.CharacterGuid)
                     {
-                        if (playerDummy2.CharacterGuid == Utilities.gInst.Player.playerDummy.CharacterGuid)
+                        if (playerDummy2.CharacterGuid == Utilities.GInst.Player.playerDummy.CharacterGuid)
                         {
                             AdminMenuPlugin.AdminMenuLogger.LogInfo($"Setting Admin to false for {playerDummy2.CharacterName} ({playerDummy2.CharacterGuid})");
                         }
 
-                        UIGameMenuAwakePatch.CheatPanelRoot.SetActive(false);
+                        //UIGameMenuAwakePatch.CheatPanelRoot.SetActive(false);
                         UIGameMenuAwakePatch.Admin = false;
                     }
                 }
@@ -98,19 +98,24 @@ static class PlayerDummySpawnedPatch
     }
 }
 
-[HarmonyPatch(typeof(UIGameMenu), nameof(UIGameMenu.Awake))]
+[HarmonyPatch(typeof(UICombat), nameof(UICombat.Start))]
 static class UIGameMenuAwakePatch
 {
-    public static GameObject CheatPanelRoot = null!;
+   // public static GameObject CheatPanelRoot = null!;
     public static bool Admin = true;
 
-    static void Postfix(UIGameMenu __instance)
+    static void Postfix(UICombat __instance)
     {
-        CheatPanelRoot = __instance.CheatPanelRoot;
+        //CheatPanelRoot = __instance.CheatPanelRoot; // Removed this in v0.200
         if (!Admin) return;
         //CheatPanelRoot.SetActive(true);
         if (AdminMenuPlugin.AdminUI != null) return;
-        AdminMenuPlugin.AdminUI = Object.Instantiate(AdminMenuPlugin.AdminUITemp, Utilities.gInst.uiCombat.transform, false);
+        if (AdminMenuPlugin.AdminUITemp == null)
+        {
+            AdminMenuPlugin.AdminMenuLogger.LogInfo("AdminUITemp is null, loading assets");
+            AdminMenuPlugin.LoadAssets();
+        }
+        AdminMenuPlugin.AdminUI = Object.Instantiate(AdminMenuPlugin.AdminUITemp, Utilities.GInst.uiCombat.transform, false);
         AdminMenuPlugin.AdminUI.SetActive(false);
     }
 }
@@ -125,8 +130,8 @@ static class PlayerDummyNoticePlayerJoinedRPCPatch
             if (transform && transform.gameObject.activeSelf && transform.TryGetComponent<PlayerDummy>(out PlayerDummy component) && (bool)(Object)component.Object && !(component == Global.code.Player.playerDummy))
             {
                 if (AdminUI.allowPlayers) continue;
-                Mainframe.code.M_GlobalData.RPC_DisconnectPlayer(component.PlayerRef);
-                Utilities.gInst.uiCombat.AddHint($"Player {characterName} kicked from the game.", Color.yellow);
+                Mainframe.code.GlobalData.DisconnectPlayerAsync(component.PlayerRef);
+                Utilities.GInst.uiCombat.AddHint($"Player {characterName} kicked from the game.", Color.yellow);
                 AdminMenuPlugin.AdminMenuLogger.LogInfo($"Player {characterName} ({component.CharacterGuid}) kicked from the game.");
             }
         }
@@ -138,7 +143,7 @@ static class GlobalHandleKeysPatch
 {
     static bool Prefix(Global __instance)
     {
-        if (__instance.Player.IsBusy || __instance.player.IsDead || !GlobalDataHelper.IsGlobalDataValid())
+        if (__instance.Player.IsBusy || __instance.player.IsDead || !GlobalDataHelper.IsGlobalDataValid)
         {
             return true;
         }
@@ -146,8 +151,8 @@ static class GlobalHandleKeysPatch
         if (!Checks.AdminPanelActive() || __instance.uiDialogue.IsActive) return true;
         if (InputManager.Instance.EscapePressed)
             __instance.ButtonEscape();
-        if (Input.GetKeyDown(KeyCode.Home))
-            __instance.uiGameMenu.FasterTime();
+        /*if (Input.GetKeyDown(KeyCode.Home))
+            __instance.uiGameMenu.FasterTime();*/
 
         return false;
     }

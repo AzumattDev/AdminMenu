@@ -314,16 +314,16 @@ namespace AdminMenu
 
         public void FreeBuild_OnClick()
         {
-            Utilities.gInst.FreeBuild = !Utilities.gInst.FreeBuild;
-            freeBuildDescription.color = Utilities.gInst.FreeBuild ? GreenTextColor : RedTextColor;
-            freeBuildDescription.text = Utilities.gInst.FreeBuild ? Act : Inact;
+            Utilities.GInst.FreeBuild = !Utilities.GInst.FreeBuild;
+            freeBuildDescription.color = Utilities.GInst.FreeBuild ? GreenTextColor : RedTextColor;
+            freeBuildDescription.text = Utilities.GInst.FreeBuild ? Act : Inact;
         }
 
         public void FreeResearch_OnClick()
         {
-            Utilities.gInst.UnLockAllResearch = !Utilities.gInst.UnLockAllResearch;
-            freeResearchDescription.color = Utilities.gInst.UnLockAllResearch ? GreenTextColor : RedTextColor;
-            freeResearchDescription.text = Utilities.gInst.UnLockAllResearch ? Act : Inact;
+            Utilities.GInst.UnLockAllResearch = !Utilities.GInst.UnLockAllResearch;
+            freeResearchDescription.color = Utilities.GInst.UnLockAllResearch ? GreenTextColor : RedTextColor;
+            freeResearchDescription.text = Utilities.GInst.UnLockAllResearch ? Act : Inact;
         }
 
         public void NoHunger_OnClick()
@@ -417,9 +417,9 @@ namespace AdminMenu
 
         public void InstantKill_OnClick()
         {
-            if (Utilities.gInst.Player.weaponInHand == null)
+            if (Utilities.GInst.Player.weaponInHand == null)
                 return;
-            Utilities.gInst.Player.weaponInHand.damage = 1000000f;
+            Utilities.GInst.Player.weaponInHand.damage = 1000000f;
             instantKill = !instantKill;
             instantKillDescription.color = instantKill ? GreenTextColor : RedTextColor;
             instantKillDescription.text = instantKill ? Act : Inact;
@@ -428,37 +428,37 @@ namespace AdminMenu
 
         public void SavePlayer_OnClick()
         {
-            Utilities.gInst.uiCombat.AddHint(nameof(SavePlayer), Color.red);
+            Utilities.GInst.uiCombat.AddHint(nameof(SavePlayer), Color.red);
             Mainframe.code.SaveManager.SavePlayer();
         }
 
         public void LoadPlayer_OnClick()
         {
-            Utilities.gInst.uiCombat.AddHint(nameof(LoadPlayer), Color.red);
+            Utilities.GInst.uiCombat.AddHint(nameof(LoadPlayer), Color.red);
             Mainframe.code.saveManager.LoadLocalPlayer();
         }
 
         public void SaveWorld_OnClick()
         {
-            Utilities.gInst.uiCombat.AddHint(nameof(SaveWorld), Color.red);
+            Utilities.GInst.uiCombat.AddHint(nameof(SaveWorld), Color.red);
             Mainframe.code.SaveManager.SaveWorld();
         }
 
         public void LoadWorld_OnClick()
         {
-            Utilities.gInst.uiCombat.AddHint("Load World", Color.red);
+            Utilities.GInst.uiCombat.AddHint("Load World", Color.red);
             Mainframe.code.SaveManager.LoadWorldAsync();
         }
 
         public void TriggerAutoSave_OnClick()
         {
-            Utilities.gInst.uiCombat.AddHint("Autosaving", Color.red);
-            Utilities.gInst.uiGameMenu.TriggerAutoSave();
+            Utilities.GInst.uiCombat.AddHint("Autosaving", Color.red);
+            Mainframe.code.SaveManager.SaveGameAsync(true);
         }
 
         public void LoadAutoSave_OnClick()
         {
-            Utilities.gInst.uiCombat.AddHint("Loading Autosave", Color.red);
+            Utilities.GInst.uiCombat.AddHint("Loading Autosave", Color.red);
             Mainframe.code.SaveManager.LoadGame(true);
         }
 
