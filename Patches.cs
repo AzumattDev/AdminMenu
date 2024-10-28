@@ -134,3 +134,33 @@ static class PlayerAddHealthPatch
         return !(point < 0) || HitPart == 3 || !AdminUI.unlimitedHealth;
     }
 }
+
+[HarmonyPatch(typeof(Craftable), nameof(Craftable.IsAbleToCraft), typeof(Craftable))]
+static class CraftableIsAbleToCraftPatch
+{
+    static void Postfix(Craftable __instance, ref bool __result)
+    {
+        if (Utilities.GInst.FreeBuild)
+            __result = true;
+    }
+}
+
+[HarmonyPatch(typeof(Craftable), nameof(Craftable.IsAbleToCraft), typeof(CraftingItemRequirement[]))]
+static class CraftableIsAbleToCraftRequirementsPatch
+{
+    static void Postfix(Craftable __instance, ref bool __result)
+    {
+        if (Utilities.GInst.FreeBuild)
+            __result = true;
+    }
+}
+
+[HarmonyPatch(typeof(PlayerCharacter), nameof(PlayerCharacter.ConsumeItem))]
+static class PlayerCharacterConsumeItemPatch
+{
+    static void Postfix(PlayerCharacter __instance, ref bool __result)
+    {
+        if (Utilities.GInst.FreeBuild)
+            __result = true;
+    }
+}
