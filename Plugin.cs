@@ -1,15 +1,12 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Reflection;
 using AdminMenu.Util;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
-using Fusion;
 using HarmonyLib;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace AdminMenu
 {
@@ -17,7 +14,7 @@ namespace AdminMenu
     public class AdminMenuPlugin : BaseUnityPlugin
     {
         internal const string ModName = "AdminMenu";
-        internal const string ModVersion = "1.3.0";
+        internal const string ModVersion = "2.0.0";
         internal const string Author = "Azumatt";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
@@ -98,7 +95,7 @@ namespace AdminMenu
             }
 
             if (!Utilities.GInst) return;
-            if (Checks.AdminPanelActive() && !Utilities.GInst.uiDialogue.IsActive)
+            if (Checks.AdminPanelActive() && !Utilities.GInst.dialogueManager.IsInDialogue)
             {
                 Utilities.TurnOnUI();
             }

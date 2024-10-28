@@ -1,8 +1,7 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using AdminMenu.Util;
-using Fusion;
 using HarmonyLib;
+using KWS;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -20,7 +19,7 @@ static class GlobalCSPatch
             Utilities.TurnOnUI();
         }
 
-        if (Checks.AdminPanelActive() && !__instance.uiDialogue.IsActive)
+        if (Checks.AdminPanelActive() && !__instance.DialogueManager.IsInDialogue)
         {
             Utilities.TurnOnUI();
             Cursor.visible = true;
@@ -44,83 +43,40 @@ static class GlobalCSPatch
     }
 }
 
-[HarmonyPatch(typeof(GlobalData), nameof(GlobalData.Spawned))]
-static class PlayerDummySpawnedPatch
-{
-    static void Postfix(GlobalData __instance)
-    {
-        try
-        {
-            if (!__instance.Runner.SessionInfo.Properties.TryGetValue("serverHostPlayerIdentifier", out SessionProperty sessionProperty))
-            {
-                return;
-            }
-
-            Guid guid;
-            if (!Guid.TryParse(sessionProperty, out guid))
-            {
-                return;
-            }
-
-            bool flag = false;
-            foreach (Transform transform in WorldScene.code.allPlayerDummies.items.ToList<Transform>())
-            {
-                PlayerDummy playerDummy;
-                PlayerDummy playerDummy2;
-                if (transform && transform.TryGetComponent<PlayerDummy>(out playerDummy) && playerDummy.Object && playerDummy.Object.IsValid && !(playerDummy.CharacterGuid != guid))
-                {
-                    if (guid == Utilities.GInst.Player.playerDummy.CharacterGuid)
-                    {
-                        AdminMenuPlugin.AdminMenuLogger.LogInfo($"Setting Admin to true for {playerDummy.CharacterName} ({playerDummy.CharacterGuid})");
-                        // UIGameMenuAwakePatch.CheatPanelRoot.SetActive(true);
-                        UIGameMenuAwakePatch.Admin = true;
-                    }
-                }
-                else if (transform && transform.TryGetComponent<PlayerDummy>(out playerDummy2) && playerDummy2.Object && playerDummy2.Object.IsValid && (playerDummy2.CharacterGuid != guid))
-                {
-                    if (guid != Utilities.GInst.Player.playerDummy.CharacterGuid)
-                    {
-                        if (playerDummy2.CharacterGuid == Utilities.GInst.Player.playerDummy.CharacterGuid)
-                        {
-                            AdminMenuPlugin.AdminMenuLogger.LogInfo($"Setting Admin to false for {playerDummy2.CharacterName} ({playerDummy2.CharacterGuid})");
-                        }
-
-                        //UIGameMenuAwakePatch.CheatPanelRoot.SetActive(false);
-                        UIGameMenuAwakePatch.Admin = false;
-                    }
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            // Ignored for singleplayer
-        }
-    }
-}
-
 [HarmonyPatch(typeof(UICombat), nameof(UICombat.Start))]
 static class UIGameMenuAwakePatch
 {
-   // public static GameObject CheatPanelRoot = null!;
     public static bool Admin = true;
 
     static void Postfix(UICombat __instance)
     {
-        //CheatPanelRoot = __instance.CheatPanelRoot; // Removed this in v0.200
-        if (!Admin) return;
-        //CheatPanelRoot.SetActive(true);
-        if (AdminMenuPlugin.AdminUI != null) return;
-        if (AdminMenuPlugin.AdminUITemp == null)
+        if (Mainframe.code.Networking.IsHostAndInGameSession || Mainframe.code.NetworkGameManager.ServerAdministration.IsServerAdmin)
         {
-            AdminMenuPlugin.AdminMenuLogger.LogInfo("AdminUITemp is null, loading assets");
-            AdminMenuPlugin.LoadAssets();
+            AdminMenuPlugin.AdminMenuLogger.LogDebug($"Setting Admin to true");
+            UIGameMenuAwakePatch.Admin = true;
+            if (AdminMenuPlugin.AdminUI != null) return;
+            if (AdminMenuPlugin.AdminUITemp == null)
+            {
+                AdminMenuPlugin.AdminMenuLogger.LogInfo("AdminUITemp is null, loading assets");
+                AdminMenuPlugin.LoadAssets();
+            }
+
+            Transform? allowPlayers = Utilities.FindChild(AdminMenuPlugin.AdminUITemp.transform, "AllowPlayers");
+            if (allowPlayers != null) allowPlayers.gameObject.SetActive(false);
+
+            AdminMenuPlugin.AdminUI = Object.Instantiate(AdminMenuPlugin.AdminUITemp, Utilities.GInst.uiCombat.transform, false);
+            AdminMenuPlugin.AdminUI.SetActive(false);
         }
-        AdminMenuPlugin.AdminUI = Object.Instantiate(AdminMenuPlugin.AdminUITemp, Utilities.GInst.uiCombat.transform, false);
-        AdminMenuPlugin.AdminUI.SetActive(false);
+        else
+        {
+            if (UIGameMenuAwakePatch.Admin)
+                AdminMenuPlugin.AdminMenuLogger.LogDebug($"Setting Admin to false");
+            UIGameMenuAwakePatch.Admin = false;
+        }
     }
 }
 
-[HarmonyPatch(typeof(PlayerDummy), nameof(PlayerDummy.NoticePlayerJoined_RPC))]
+/*[HarmonyPatch(typeof(PlayerDummy), nameof(PlayerDummy.NoticePlayerJoined_RPC))]
 static class PlayerDummyNoticePlayerJoinedRPCPatch
 {
     static void Postfix(PlayerDummy __instance, ref string characterName)
@@ -130,13 +86,14 @@ static class PlayerDummyNoticePlayerJoinedRPCPatch
             if (transform && transform.gameObject.activeSelf && transform.TryGetComponent<PlayerDummy>(out PlayerDummy component) && (bool)(Object)component.Object && !(component == Global.code.Player.playerDummy))
             {
                 if (AdminUI.allowPlayers) continue;
-                Mainframe.code.GlobalData.DisconnectPlayerAsync(component.PlayerRef);
+                // TODO: Fix this
+                //Mainframe.code.GlobalData.DisconnectPlayerAsync(component.PlayerRef);
                 Utilities.GInst.uiCombat.AddHint($"Player {characterName} kicked from the game.", Color.yellow);
                 AdminMenuPlugin.AdminMenuLogger.LogInfo($"Player {characterName} ({component.CharacterGuid}) kicked from the game.");
             }
         }
     }
-}
+}*/
 
 [HarmonyPatch(typeof(Global), nameof(Global.HandleKeys))]
 static class GlobalHandleKeysPatch
@@ -148,7 +105,7 @@ static class GlobalHandleKeysPatch
             return true;
         }
 
-        if (!Checks.AdminPanelActive() || __instance.uiDialogue.IsActive) return true;
+        if (!Checks.AdminPanelActive() || __instance.DialogueManager.IsInDialogue) return true;
         if (InputManager.Instance.EscapePressed)
             __instance.ButtonEscape();
         /*if (Input.GetKeyDown(KeyCode.Home))
@@ -171,12 +128,7 @@ static class PlayerCharacterUpdateKeysPatch
 [HarmonyPatch(typeof(PlayerCharacter), nameof(PlayerCharacter.AddHealth))]
 static class PlayerAddHealthPatch
 {
-    static bool Prefix(PlayerCharacter __instance, float point,
-        int HitPart,
-        Vector3 damageSource,
-        bool canBleed,
-        bool showBiteFx,
-        bool IsMeleeWeapon)
+    static bool Prefix(PlayerCharacter __instance, float point, int HitPart, Vector3 damageSource, bool canBleed, bool showBiteFx, bool IsMeleeWeapon)
     {
         // Outright prevent damage (hopefully)
         return !(point < 0) || HitPart == 3 || !AdminUI.unlimitedHealth;

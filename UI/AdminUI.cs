@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using AdminMenu.Util;
+using Enviro;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace AdminMenu
@@ -27,7 +25,7 @@ namespace AdminMenu
         public List<GameObject> buttons = new();
 
         public const string Act = "Active";
-        public const string Inact = "Inactive";
+        public const string Inact = "InActive";
         public static bool allowPlayers = false;
         public static bool unlimitedHealth = false;
         public static bool unlimitedStamina = false;
@@ -405,7 +403,7 @@ namespace AdminMenu
 
         public void TimeOfDay_OnValueChanged(float value)
         {
-            EnviroSkyMgr.instance.SetTimeOfDay(value);
+            EnviroManager.instance.Time.SetTimeOfDay(value);
         }
 
         public void AllowPlayers_OnClick()

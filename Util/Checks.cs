@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using UnityStandardAssets.Water;
 using Object = UnityEngine.Object;
 
 namespace AdminMenu.Util;
@@ -20,9 +20,9 @@ public class Checks
             {
                 //Utilities.gInst.player.Health = 1000000f;
                 //Utilities.gInst.player.MaxHealth = 1000000f;
-                Utilities.GInst.player._health = Utilities.GInst.player.MaxHealth;
-                Utilities.GInst.player._targetHealth = Utilities.GInst.player.MaxHealth;
-                Utilities.GInst.player.BodyTemperature = 100f;
+                Utilities.GInst.player.Health = Utilities.GInst.player.playerDefaultStatus.maxHealth;
+                Utilities.GInst.player.TargetHealth = Utilities.GInst.player.playerDefaultStatus.maxHealth;
+                Utilities.GInst.player.BodyTemperature = Utilities.GInst.player.playerDefaultStatus.maxBodyTemperature;
                 if (!(Utilities.GInst.player.Bleeding <= 0.0))
                     Utilities.GInst.player.Bleeding = 0.0f;
                 break;
@@ -30,34 +30,34 @@ public class Checks
             case false:
                 //AdminMenuPlugin.AdminMenuLogger.LogInfo("Player health: " + Utilities.gInst.player.Health);
                 //AdminMenuPlugin.AdminMenuLogger.LogInfo("Player max health: " + Utilities.gInst.player.MaxHealth);
-                Global.code.Player.Health = 160f;
-                Global.code.Player.MaxHealth = 160f;
+                Global.code.Player.Health = Utilities.GInst.player.playerDefaultStatus.health;
+                Global.code.Player.MaxHealth = Utilities.GInst.player.playerDefaultStatus.maxHealth;
                 break;
         }
 
         if (AdminUI.unlimitedAir)
         {
-            Utilities.GInst.player.Air = Utilities.GInst.player.MaxAir;
+            Utilities.GInst.player.Air = Utilities.GInst.player.playerDefaultStatus.MaxAir;
         }
 
         if (AdminUI.unlimitedEnergy)
         {
-            Utilities.GInst.player._energy = Utilities.GInst.player.MaxEnergy;
+            Utilities.GInst.player._energy = Utilities.GInst.player.playerDefaultStatus.MaxEnergy;
         }
 
         if (AdminUI.unlimitedStamina)
         {
-            Utilities.GInst.player._stamina = 130f;
+            Utilities.GInst.player._stamina = Utilities.GInst.player.playerDefaultStatus.MaxEnergy;
         }
 
         if (AdminUI.noHunger)
         {
-            Utilities.GInst.player._hunger = 100f;
+            Utilities.GInst.player._hunger = Utilities.GInst.player.playerDefaultStatus.MaxHunger;
         }
 
         if (AdminUI.noThirst)
         {
-            Utilities.GInst.player._thirst = 100f;
+            Utilities.GInst.player._thirst = Utilities.GInst.player.playerDefaultStatus.MaxThirst;
         }
 
         if (AdminUI.transform && Input.GetKeyDown(KeyCode.LeftControl))
@@ -97,7 +97,10 @@ public class Checks
             return;
 
         if (AdminUI.enemyESP)
-            DisplayInfoForEntities(Utilities.WsInst.allCharacters.items, ProcessCharacter);
+        {
+            DisplayInfoForEntities(Utilities.WsInst.AllCharactersList, ProcessCharacter);
+        }
+
         if (AdminUI.playerESP)
             DisplayInfoForEntities(Utilities.WsInst.allPlayerDummies.items, ProcessCharacterPlayer);
 
@@ -129,59 +132,61 @@ public class Checks
 
     private static void ProcessCharacter(Object obj)
     {
-        Transform? transform = obj as Transform;
-        if (transform == null) return;
-
-        Character component = transform.GetComponent<Character>();
-        if (component != null)
+        if (obj == null) return;
+        Character? character = obj as Character;
+        if (character == null) return;
+        if (Utilities.CamInst == null || Utilities.PCInst == null)
         {
-            var position = transform.transform.position;
-            Vector3 screenPoint1 = Utilities.CamInst.WorldToScreenPoint(position);
-            var position1 = component.eye.transform.position;
-            Vector3 screenPoint2 = Utilities.CamInst.WorldToScreenPoint(position1);
-            Vector3 screenPoint3 = Utilities.CamInst.WorldToScreenPoint(component.transform.position);
-            float f = Vector3.Distance(Utilities.PCInst.transform.position, position);
-            float health = component.health;
-            string pText = component.weapon.ToString();
-            float num1 = Mathf.Abs(screenPoint2.y - screenPoint3.y);
-            bool flag = !Utilities.IsEnemyVisible(Utilities.CamInst.transform.position, position1);
-            float num2;
-            if (Utilities.IsOnScreen(screenPoint1) && f < (double)Variables.FEnemies)
+            return;
+        }
+
+
+        var position = character.transform.position;
+        Vector3 screenPoint1 = Utilities.CamInst.WorldToScreenPoint(position);
+        var position1 = character.eye.transform.position;
+        Vector3 screenPoint2 = Utilities.CamInst.WorldToScreenPoint(position1);
+        Vector3 screenPoint3 = Utilities.CamInst.WorldToScreenPoint(character.transform.position);
+        float f = Vector3.Distance(Utilities.PCInst.transform.position, position);
+        float health = character.health;
+        string pText = character.weapon.ToString();
+        float num1 = Mathf.Abs(screenPoint2.y - screenPoint3.y);
+        bool flag = !Utilities.IsEnemyVisible(Utilities.CamInst.transform.position, position1);
+        float num2;
+        if (Utilities.IsOnScreen(screenPoint1) && f < (double)Variables.FEnemies)
+        {
+            if (flag)
             {
-                if (flag)
-                {
-                    if (f < 150.0)
-                        Utilities.CornerBox(new Vector2(screenPoint2.x, (float)(Screen.height - (double)screenPoint2.y - 20.0)), num1 / 2f, num1 + 20f, 2f, Color.red, true);
-                    Utilities.DrawString(new Vector2(screenPoint1.x, Screen.height - screenPoint1.y), Utilities.NameReplacer(transform.name), Color.red, fontStyle: FontStyle.Normal);
-                    Utilities.DrawString(new Vector2(screenPoint1.x, (float)(Screen.height - (double)screenPoint1.y + 12.0)), Utilities.WeaponReplacer(pText), Color.HSVToRGB(0.1055556f, 0.29f, 1f), fontStyle: FontStyle.Normal);
-                    Vector2 pos1 = new(screenPoint1.x, (float)(Screen.height - (double)screenPoint1.y + 24.0));
-                    num2 = Mathf.Round(health);
-                    string text1 = num2.ToString() + " HP";
-                    Color white = Color.white;
-                    Utilities.DrawString(pos1, text1, white, fontStyle: FontStyle.Normal);
-                    Vector2 pos2 = new(screenPoint1.x, (float)(Screen.height - (double)screenPoint1.y + 36.0));
-                    num2 = Mathf.Round(f);
-                    string text2 = num2.ToString() + "m";
-                    Color yellow = Color.yellow;
-                    Utilities.DrawString(pos2, text2, yellow, fontStyle: FontStyle.Normal);
-                }
-                else if (!flag)
-                {
-                    if (f < 150.0)
-                        Utilities.CornerBox(new Vector2(screenPoint2.x, (float)(Screen.height - (double)screenPoint2.y - 20.0)), num1 / 2f, num1 + 20f, 2f, Color.HSVToRGB(0.1083333f, 1f, 1f), true);
-                    Utilities.DrawString(new Vector2(screenPoint1.x, Screen.height - screenPoint1.y), Utilities.NameReplacer(transform.name), Color.HSVToRGB(0.1083333f, 1f, 1f), fontStyle: FontStyle.Normal);
-                    Utilities.DrawString(new Vector2(screenPoint1.x, (float)(Screen.height - (double)screenPoint1.y + 12.0)), Utilities.WeaponReplacer(pText), Color.HSVToRGB(0.1055556f, 0.29f, 1f), fontStyle: FontStyle.Normal);
-                    Vector2 pos3 = new(screenPoint1.x, (float)(Screen.height - (double)screenPoint1.y + 24.0));
-                    num2 = Mathf.Round(health);
-                    string text3 = num2.ToString() + " HP";
-                    Color white = Color.white;
-                    Utilities.DrawString(pos3, text3, white, fontStyle: FontStyle.Normal);
-                    Vector2 pos4 = new(screenPoint1.x, (float)(Screen.height - (double)screenPoint1.y + 36.0));
-                    num2 = Mathf.Round(f);
-                    string text4 = num2.ToString() + "m";
-                    Color yellow = Color.yellow;
-                    Utilities.DrawString(pos4, text4, yellow, fontStyle: FontStyle.Normal);
-                }
+                if (f < 150.0)
+                    Utilities.CornerBox(new Vector2(screenPoint2.x, (float)(Screen.height - (double)screenPoint2.y - 20.0)), num1 / 2f, num1 + 20f, 2f, Color.red, true);
+                Utilities.DrawString(new Vector2(screenPoint1.x, Screen.height - screenPoint1.y), Utilities.NameReplacer(character.name), Color.red, fontStyle: FontStyle.Normal);
+                Utilities.DrawString(new Vector2(screenPoint1.x, (float)(Screen.height - (double)screenPoint1.y + 12.0)), Utilities.WeaponReplacer(pText), Color.HSVToRGB(0.1055556f, 0.29f, 1f), fontStyle: FontStyle.Normal);
+                Vector2 pos1 = new(screenPoint1.x, (float)(Screen.height - (double)screenPoint1.y + 24.0));
+                num2 = Mathf.Round(health);
+                string text1 = num2.ToString() + " HP";
+                Color white = Color.white;
+                Utilities.DrawString(pos1, text1, white, fontStyle: FontStyle.Normal);
+                Vector2 pos2 = new(screenPoint1.x, (float)(Screen.height - (double)screenPoint1.y + 36.0));
+                num2 = Mathf.Round(f);
+                string text2 = num2.ToString() + "m";
+                Color yellow = Color.yellow;
+                Utilities.DrawString(pos2, text2, yellow, fontStyle: FontStyle.Normal);
+            }
+            else if (!flag)
+            {
+                if (f < 150.0)
+                    Utilities.CornerBox(new Vector2(screenPoint2.x, (float)(Screen.height - (double)screenPoint2.y - 20.0)), num1 / 2f, num1 + 20f, 2f, Color.HSVToRGB(0.1083333f, 1f, 1f), true);
+                Utilities.DrawString(new Vector2(screenPoint1.x, Screen.height - screenPoint1.y), Utilities.NameReplacer(character.name), Color.HSVToRGB(0.1083333f, 1f, 1f), fontStyle: FontStyle.Normal);
+                Utilities.DrawString(new Vector2(screenPoint1.x, (float)(Screen.height - (double)screenPoint1.y + 12.0)), Utilities.WeaponReplacer(pText), Color.HSVToRGB(0.1055556f, 0.29f, 1f), fontStyle: FontStyle.Normal);
+                Vector2 pos3 = new(screenPoint1.x, (float)(Screen.height - (double)screenPoint1.y + 24.0));
+                num2 = Mathf.Round(health);
+                string text3 = num2.ToString() + " HP";
+                Color white = Color.white;
+                Utilities.DrawString(pos3, text3, white, fontStyle: FontStyle.Normal);
+                Vector2 pos4 = new(screenPoint1.x, (float)(Screen.height - (double)screenPoint1.y + 36.0));
+                num2 = Mathf.Round(f);
+                string text4 = num2.ToString() + "m";
+                Color yellow = Color.yellow;
+                Utilities.DrawString(pos4, text4, yellow, fontStyle: FontStyle.Normal);
             }
         }
     }
@@ -190,6 +195,7 @@ public class Checks
     {
         Transform? transform = obj as Transform;
         if (transform == null) return;
+        if (Utilities.CamInst == null || Utilities.PCInst == null) return;
 
         PlayerDummy component = transform.GetComponent<PlayerDummy>();
         if (component != null && component.Object && component.Object.IsValid && (component.CharacterGuid != Utilities.GInst.Player.playerDummy.CharacterGuid))
@@ -244,6 +250,7 @@ public class Checks
     {
         Transform? transform = obj as Transform; // Attempt to cast
         if (transform == null) return;
+        if (Utilities.CamInst == null || Utilities.PCInst == null) return;
 
         FishAI? component = transform.GetComponent<FishAI>();
         if (component != null)
@@ -273,7 +280,7 @@ public class Checks
     {
         Transform? transform = obj as Transform; // Attempt to cast
         if (transform == null) return;
-
+        if (Utilities.CamInst == null || Utilities.PCInst == null) return;
         Bird? component = transform.GetComponent<Bird>();
         if (component != null)
         {
@@ -303,7 +310,7 @@ public class Checks
         {
             return;
         }
-
+        if (Utilities.CamInst == null || Utilities.PCInst == null) return;
         var position = scavengable.transform.position;
         Vector3 screenPoint = Utilities.CamInst.WorldToScreenPoint(position);
         float distance = Vector3.Distance(Utilities.PCInst.transform.position, position);
@@ -328,7 +335,7 @@ public class Checks
         {
             return;
         }
-
+        if (Utilities.CamInst == null || Utilities.PCInst == null) return;
         var position = chest.transform.position;
         Vector3 screenPoint = Utilities.CamInst.WorldToScreenPoint(position);
         float distance = Vector3.Distance(Utilities.PCInst.transform.position, position);
@@ -353,7 +360,7 @@ public class Checks
         {
             return;
         }
-        
+        if (Utilities.CamInst == null || Utilities.PCInst == null) return;
         var position = interaction.transform.position;
         Vector3 screenPoint = Utilities.CamInst.WorldToScreenPoint(position);
         float distance = Vector3.Distance(Utilities.PCInst.transform.position, position);

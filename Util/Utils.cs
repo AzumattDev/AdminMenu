@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Localization;
 
 namespace AdminMenu.Util
 {
@@ -14,7 +14,7 @@ namespace AdminMenu.Util
         private static Texture2D drawingTex;
         private static Color lastTexColour;
 
-        public static Camera CamInst => GInst.player._mainCamera;
+        public static Camera CamInst => GInst.player.MainCamera;
 
         public static PlayerCharacter PCInst => GInst.player;
 
@@ -33,7 +33,7 @@ namespace AdminMenu.Util
         public static void TurnOnUI()
         {
             Utilities.GInst.OnGUI = true;
-            RPGCamera.code.blur.enabled = Checks.AdminPanelActive() && !Utilities.GInst.uiDialogue.IsActive;
+            //RPGCamera.code.blur.enabled = Checks.AdminPanelActive() && !Utilities.GInst.dialogueManager.IsInDialogue;
         }
 
         public static void RemoveDrops()
@@ -53,9 +53,11 @@ namespace AdminMenu.Util
                         try
                         {
                             item.Runner.Despawn(item.Object);
-                        } catch {}
+                        }
+                        catch
+                        {
+                        }
                     }
-
                 }
             }
         }
@@ -329,7 +331,7 @@ namespace AdminMenu.Util
                         --item.Amount;
                         if (component.itemReceivedAfterEat && UnityEngine.Random.Range(0, 100) < component.itemReceiveChance)
                         {
-                            GInst.player.playerStorage.AddItem(Utility.Instantiate(component.itemReceivedAfterEat));
+                            GInst.player.playerStorage.TryAddItem(Utility.Instantiate(component.itemReceivedAfterEat));
                         }
 
                         if (item.sndUse)
@@ -358,7 +360,7 @@ namespace AdminMenu.Util
                         bool flag = !(FPSRigidBodyWalker.code.isUnderWater && item.ItemID == RM.code.Torch.ItemID);
                         if (flag)
                         {
-                            if (GInst.player.weaponInHand && GInst.player.weaponInHand._item == item && PlayerWeapons.code.CurrentWeaponBehaviorComponent 
+                            if (GInst.player.weaponInHand && GInst.player.weaponInHand._item == item && PlayerWeapons.code.CurrentWeaponBehaviorComponent
                                 && PlayerWeapons.code.CurrentWeaponBehaviorComponent.WeaponItem.ItemID == item.ItemID && PlayerWeapons.code.CurrentWeaponBehaviorComponent.InitDone)
                             {
                                 PlayerWeapons.code.HolsterCurrentWeapon();
@@ -382,7 +384,7 @@ namespace AdminMenu.Util
                             GInst.player.MyBuildController.SetSelectedPiece(obj.GetComponent<BuildingPiece>());
                             if (Global.code.uiInventory.gameObject.activeSelf)
                                 Global.code.uiInventory.Close();
-                            GInst.player.DecorationPiece = item.ItemID;
+                            GInst.player.DecorationPieceID = item.ItemID;
                             if (!isQuickSlot)
                                 GInst.player.Invoke("ChangeInventoryState", 0.01f);
                         }
@@ -412,16 +414,67 @@ namespace AdminMenu.Util
                                 if (Global.code)
                                     Global.code.uiCombat.OpenBlueprintPenal(component2, Global.code.uiInventory.gameObject.activeSelf);
 
-                                GInst.player.StartCoroutine(GInst.player.RefreshInventoryUI());
+                                UniTaskVoid uniTaskVoid;
+                                uniTaskVoid = GInst.player.RefreshInventoryUI();
+                                uniTaskVoid.Forget();
                             }
                         }
                     }
 
                     if (GInst.player.weaponInHand)
                         return;
-                    Global.code.uiCombat.ammoText.text = "∞";
+                    Global.code.uiCombat.tmpAmmo.text = "∞";
                 }
             }
+        }
+
+        public static Transform? FindChild(Transform aParent, string aName, IterativeSearchType searchType = IterativeSearchType.DepthFirst)
+        {
+            switch (searchType)
+            {
+                case IterativeSearchType.DepthFirst:
+                    Stack<Transform> transformStack = new Stack<Transform>();
+                    Transform child1 = aParent;
+                    do
+                    {
+                        for (int index = child1.childCount - 1; index >= 0; --index)
+                            transformStack.Push(child1.GetChild(index));
+                        if (transformStack.Count > 0)
+                            child1 = transformStack.Pop();
+                        else
+                            goto label_8;
+                    } while (child1.name != aName);
+
+                    return child1;
+                    label_8:
+                    return null;
+                case IterativeSearchType.BreadthFirst:
+                    Queue<Transform> transformQueue = new Queue<Transform>();
+                    Transform child2 = aParent;
+                    do
+                    {
+                        int childCount = child2.childCount;
+                        for (int index = 0; index < childCount; ++index)
+                            transformQueue.Enqueue(child2.GetChild(index));
+                        if (transformQueue.Count > 0)
+                            child2 = transformQueue.Dequeue();
+                        else
+                            goto label_16;
+                    } while (child2.name != aName);
+
+                    return child2;
+                    label_16:
+                    return null;
+                default:
+                    AdminMenuPlugin.AdminMenuLogger.LogError((object)"Search type not implemented!");
+                    return null;
+            }
+        }
+
+        public enum IterativeSearchType
+        {
+            DepthFirst,
+            BreadthFirst,
         }
 
         private class RingArray

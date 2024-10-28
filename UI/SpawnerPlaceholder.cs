@@ -2,7 +2,6 @@
 using AdminMenu.Util;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -78,8 +77,8 @@ public class SpawnerPlaceholder : MonoBehaviour
                     {
                         for (int i = 0; i < amountToSpawn; ++i)
                         {
-                           if (!Global.code.Player.playerStorage.AddItem(Utility.Instantiate<Item>(item), true))
-                            Global.code.Player.quickSlotStorage.AddItem(Utility.Instantiate<Item>(item), true);
+                           if (!Global.code.Player.playerStorage.TryAddItem(Utility.Instantiate<Item>(item), true, true))
+                            Global.code.Player.quickSlotStorage.TryAddItem(Utility.Instantiate<Item>(item), true, true);
                         }
                         return;
                     }
